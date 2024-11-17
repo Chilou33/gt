@@ -49,5 +49,5 @@ def draw():
         pyxel.rect(tir[0], tir[1], 2, 2, 10)
 
 pyxel.init(160, 120)
-pyxel.run(update, draw)
 pyxel.load("my_resource.pyxres")
+pyxel.run(update, draw)
