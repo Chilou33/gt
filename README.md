@@ -1,4 +1,4 @@
-# Katamnino (Python)
+# Pythominoes
 
 Ce projet est une implémentation en Python du jeu de Katamino, un jeu de puzzle logique. Cette version propose une variante du jeu de base avec plusieurs modes de jeu.
 
