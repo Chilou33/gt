@@ -1,0 +1,3 @@
+finir de dessiner les piéces
+dessiner les niveaux 
+faire le code des déplacements
