@@ -15,7 +15,7 @@ def update():
             pyxel.quit()
 
 
-
+    
 # Fonction de dessin (affiche l'écran d'accueil)
 def draw():
     pyxel.cls(background_color)  # Efface l'écran avec la couleur de fond
