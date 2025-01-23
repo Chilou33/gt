@@ -1,3 +1,4 @@
-finir de dessiner les piéces
-dessiner les niveaux 
-faire le code des déplacements
+finir de dessiner les piéces du Katamino : Léandre  
+dessiner les niveaux : Camille
+faire le code des déplacements : Achille
+Plateau (5x12)
