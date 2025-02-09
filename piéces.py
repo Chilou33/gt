@@ -11,3 +11,5 @@ def draw():
 pyxel.init(160, 120)
 pyxel.load("my_resource.pyxres")
 pyxel.run(update, draw)
+
+
