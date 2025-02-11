@@ -33,7 +33,7 @@ def piece1():
        
 def piece2(): 
     piece = [[0,1],
-             [1,1,1],
+             [1,1,1],ui
              [0,1]]
     for Py in piece:
         for Px in Py:
