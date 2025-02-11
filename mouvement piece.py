@@ -8,58 +8,37 @@ def place(piece:list):
     return plateau
 
 class Piece():
-    def __init__(self,numero,patron:list):
+    def __init__(self, numero, patron: list):
         self.numero = numero
         self.patron = patron
-    def tradEnCoordonnées(self,patron):
-        for Py in patron:
-            for Px in Py:
-                if Px!=0:
-                    patron[patron.index(Py)][Py.index(Px)]=[patron.index(Py),Py.index(Px)]
-        self.coord=patron
+    def tradEnCoordonnées(self, patron):
+        self.coord = convert_piece(patron)
         return self.coord
 
 def piece1():
-    
     piece = [[1,1],
              [1],
              [1],
              [1]]
-    for Py in piece:
-        for Px in Py:
-            if Px!=0:
-                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
-    return piece
+    return convert_piece(piece)
        
 def piece2(): 
     piece = [[0,1],
              [1,1,1],
              [0,1]]
-    for Py in piece:
-        for Px in Py:
-            if Px!=0:
-                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
-    return piece
+    return convert_piece(piece)
 
 def piece3():
-    piece= [[1],
-            [1,1,1],
-            [0,1]]
-    for Py in piece:
-        for Px in Py:
-            if Px!=0:
-                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
-    return piece
+    piece = [[1],
+             [1,1,1],
+             [0,1]]
+    return convert_piece(piece)
 
 def piece4():
-    piece=[[1],
-           [1,1],
-           [1,1]]
-    for Py in piece:
-        for Px in Py:
-            if Px!=0:
-                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
-    return piece
+    piece = [[1],
+             [1,1],
+             [1,1]]
+    return convert_piece(piece)
 
 plateau = [[0 for Tx in range (0,12)]for Ty in range(0,5)]
 
@@ -110,6 +89,18 @@ def rotation(plateau):
     print(nouvPiece)
     return plateau
 
+def convert_piece(piece: list) -> list:
+    new_piece = []
+    for i, row in enumerate(piece):
+        new_row = []
+        for j, val in enumerate(row):
+            if val != 0:
+                new_row.append([i, j])
+            else:
+                new_row.append(0)
+        new_piece.append(new_row)
+    return new_piece
+
 plateau1=  [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
@@ -137,7 +128,7 @@ plateau1=  [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
 
 
 
-    
 
-    
+
+
 
