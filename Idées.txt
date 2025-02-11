@@ -2,4 +2,3 @@ finir de dessiner les piéces du Katamino : Léandre
 dessiner les niveaux : Camille
 faire le code des déplacements : Achille
 Plateau (5x12)
-cc

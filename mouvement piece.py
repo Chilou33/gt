@@ -33,7 +33,7 @@ def piece1():
        
 def piece2(): 
     piece = [[0,1],
-             [1,1,1],ui
+             [1,1,1],
              [0,1]]
     for Py in piece:
         for Px in Py:
@@ -55,6 +55,16 @@ def piece4():
     piece=[[1],
            [1,1],
            [1,1]]
+    for Py in piece:
+        for Px in Py:
+            if Px!=0:
+                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
+    return piece
+
+def piece5():
+    piece=[[1],
+           [1],
+           [1,1,1]]
     for Py in piece:
         for Px in Py:
             if Px!=0:
