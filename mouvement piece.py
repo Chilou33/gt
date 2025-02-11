@@ -44,11 +44,7 @@ def piece5():
     piece=[[1],
            [1],
            [1,1,1]]
-    for Py in piece:
-        for Px in Py:
-            if Px!=0:
-                piece[piece.index(Py)][Py.index(Px)] = [piece.index(Py),Py.index(Px)]
-    return piece
+    return convert_piece(piece)
 
 plateau = [[0 for Tx in range (0,12)]for Ty in range(0,5)]
 
