@@ -11,9 +11,9 @@ class Piece():
     def __init__(self, numero, patron: list):
         self.numero = numero
         self.patron = patron
-    def tradEnCoordonnées(self, patron):
-        self.coord = convert_piece(patron)
-        return self.coord
+        self.coord = self.convert_to_coordinates()
+        self.plateau = self.place()
+        
 
 def piece1():
     piece = [[1,1],
