@@ -46,6 +46,35 @@ def piece5():
            [1,1,1]]
     return convert_piece(piece)
 
+def piece6():
+    piece=[[0,1],
+           [0,1],
+           [1,1,1]]
+    return convert_piece(piece)
+
+def piece7():
+    piece=[[1],
+           [1,1],
+           [0,1,1],]
+    return convert_piece(piece)
+
+def piece8():
+    piece=[[1],
+           [1],
+           [1],
+           [1],
+           [1]]
+    return convert_piece(piece)
+
+def piece9():
+    piece=[[1],
+           [1],
+           [1],
+           [1],
+           [1]]
+    return convert_piece(piece)
+
+
 plateau = [[0 for Tx in range (0,12)]for Ty in range(0,5)]
 
 def deplacement(sens:str,norme:int,piece:list):
