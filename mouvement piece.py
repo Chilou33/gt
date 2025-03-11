@@ -60,8 +60,7 @@ def piece7():
 
 def piece8():
     piece=[[1],
-           [1],
-           [1],
+           [1,1],
            [1],
            [1]]
     return convert_piece(piece)
@@ -72,6 +71,25 @@ def piece9():
            [1],
            [1],
            [1]]
+    return convert_piece(piece)
+
+def piece10():
+    piece=[[1,1],
+           [0,1],
+           [0,1,1]]
+    return convert_piece(piece)
+
+def piece11():
+    piece=[[1,1],
+           [0,1],
+           [1,1]]
+    return convert_piece(piece)
+
+def piece12():
+    piece=[[1],
+           [1],
+           [1,1],
+           [0,1],]
     return convert_piece(piece)
 
 
