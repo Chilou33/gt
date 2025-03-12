@@ -3,48 +3,61 @@ class Piece:
         self.numero = numero
         self.patron = patron
         self.plateau = plateau
-        self.coordinates_on_plateau = self.check_for_coordinates()
-        self.firsts_coordinates = self.convert_to_coordinates()
-
-    def check_for_coordinates(self):
-        coordinates = []
-        for i, y in enumerate(self.plateau):
-            for j, val in enumerate(y):
-                if val == self.numero:
-                    coordinates.append([i, j])
-        return coordinates
-
+        self.actual_coordinates = self.convert_to_coordinates()
+        
     def convert_to_coordinates(self):
         coordinates = []
         for i, row in enumerate(self.patron):
             for j, val in enumerate(row):
                 if val != 0:
                     coordinates.append([i, j])
-        return coordinates 
-    #def deplacement(self,x:int,y:int):
-        #coordinates = self.coordinates_on_plateau
+        return coordinates
+
+    def place_on_plateau(self):
+        for x, y in self.actual_coordinates:
+            if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
+                self.plateau[x][y] = self.numero
+        return self.plateau
+
+    def deplacement(self, dy, dx):
+        # Clear the current position of the piece on the plateau
+        for x, y in self.actual_coordinates:
+            if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
+                self.plateau[x][y] = 0
+
+        # Update the coordinates
+        new_coordinates = []
+        for x, y in self.actual_coordinates:
+            new_x, new_y = x + dx, y + dy
+            if 0 <= new_x < len(self.plateau) and 0 <= new_y < len(self.plateau[0]):
+                new_coordinates.append([new_x, new_y])
+        self.actual_coordinates = new_coordinates
+
+        # Place the piece at the new position
+        return self.place_on_plateau()
 
     def rotate(self):
+        # Clear the current position of the piece on the plateau
+        for x, y in self.actual_coordinates:
+            if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
+                self.plateau[x][y] = 0
+
         # Find the top-left corner of the piece
-        min_x = min(coord[0] for coord in self.firsts_coordinates)
-        min_y = min(coord[1] for coord in self.firsts_coordinates)
+        min_x = min(coord[0] for coord in self.actual_coordinates)
+        min_y = min(coord[1] for coord in self.actual_coordinates)
 
         # Translate coordinates to the origin
-        translated_coordinates = [[x - min_x, y - min_y] for x, y in self.firsts_coordinates]
+        translated_coordinates = [[x - min_x, y - min_y] for x, y in self.actual_coordinates]
 
         # Apply rotation (90 degrees clockwise)
         rotated_coordinates = [[y, -x] for x, y in translated_coordinates]
 
         # Translate coordinates back to original position
-        self.firsts_coordinates = [[x + min_x, y + min_y] for x, y in rotated_coordinates]
+        self.actual_coordinates = [[x + min_x, y + min_y] for x, y in rotated_coordinates]
 
-    def place_on_plateau(self, plateau):
-        for x, y in self.firsts_coordinates:
-            if 0 <= x < len(plateau) and 0 <= y < len(plateau[0]):
-                plateau[x][y] = self.numero
-        return plateau
+        # Place the piece at the new position
+        return self.place_on_plateau()
 
-# Example usage
 def create_pieces(plateau):
     piece = [
         Piece(1, [[1, 1], [1], [1], [1]], plateau),
@@ -56,23 +69,27 @@ def create_pieces(plateau):
         Piece(7, [[7], [7, 7], [0, 7, 7]], plateau),
         Piece(8, [[8], [8, 8], [8], [8]], plateau),
         Piece(9, [[9], [9], [9], [9], [9]], plateau),
-        Piece(10, [[10, 10], [0, 10], [0, 10, 10]], plateau),
-        Piece(11, [[11, 11], [0, 11], [11, 11]], plateau),
-        Piece(12, [[12], [12], [12, 12], [0, 12]], plateau)
+        Piece(10,[[10, 10], [0, 10], [0, 10, 10]], plateau),
+        Piece(11,[[11, 11], [0, 11], [11, 11]], plateau),
+        Piece(12,[[12], [12], [12, 12], [0, 12]], plateau)
     ]
     return piece
 
+def plateau_clear():
+    plateau = [[0 for _ in range(18)] for _ in range(11)]
+    for y in range(11):
+        for x in range(18):
+            if 2 < y < 8 and 2 < x < 15:
+                pass
+            else:
+                plateau[y][x] = ""
+    return plateau
+
 # Initialize plateau
-plateau = [[0 for _ in range(18)] for _ in range(11)]
-for y in range(11):
-    for x in range(18):
-        if 2 < y < 8 and 2 < x < 15:
-            pass
-        else:
-            plateau[y][x] = ""
+plateau = plateau_clear()
 
 # Create pieces
-piece = create_pieces(plateau)
+pieces = create_pieces(plateau)
 
 # Place a piece on the plateau
 # plateau = pieces[0].place_on_plateau()
