@@ -61,7 +61,7 @@ class Piece:
         self.patron = patron
         self.plateau = plateau
         self.actual_coordinates = self.convert_to_coordinates()
-
+        
     def convert_to_coordinates(self):
         coordinates = []
         for i, row in enumerate(self.patron):
@@ -101,36 +101,82 @@ class Piece:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        min_x = min(coord[0] for coord in self.actual_coordinates)
-        min_y = min(coord[1] for coord in self.actual_coordinates)
+        if self.numero in [6,8]:
+            self.rotation_anchor = self.actual_coordinates[1]
+        if self.numero in [1,2,3,4,5,7,9,10,11,12]:
+            self.rotation_anchor = self.actual_coordinates[2]
 
-        translated_coordinates = [[x - min_x, y - min_y] for x, y in self.actual_coordinates]
-         
+        anchor_x = self.rotation_anchor[0]
+        anchor_y = self.rotation_anchor[1]
+
+        translated_coordinates = [[x - anchor_x, y - anchor_y] for x, y in self.actual_coordinates]
 
         rotated_coordinates = [[y, -x] for x, y in translated_coordinates]
 
-        self.actual_coordinates = [[x + min_x, y + min_y] for x, y in rotated_coordinates] #if 0 <= x+min_x < len(self.plateau) and 0 <= y+min_y < len(self.plateau[0])]
-        
+        final_coordinates = [[x + anchor_x, y + anchor_y] for x, y in rotated_coordinates]
+        if all(0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]) for x, y in final_coordinates):
+            self.actual_coordinates = final_coordinates
+        if len(final_coordinates) == len(self.actual_coordinates):
+            self.actual_coordinates = final_coordinates
+        else:
+            pass
 
         return self.place_on_plateau()
 
 def create_pieces(plateau):
     piece = [
-        Piece(1, [[1, 1],
-                                [1], 
-                                [1], 
-                                [1]], plateau),
-        Piece(2, [[0, 2], [2, 2, 2], [0, 2]], plateau),
-        Piece(3, [[3], [3, 3, 3], [0, 3]], plateau),
-        Piece(4, [[4], [4, 4], [4, 4]], plateau),
-        Piece(5, [[5], [5], [5, 5, 5]], plateau),
-        Piece(6, [[6, 6, 6], [0, 6], [0, 6]], plateau),
-        Piece(7, [[7], [7, 7], [0, 7, 7]], plateau),
-        Piece(8, [[8], [8, 8], [8], [8]], plateau),
-        Piece(9, [[9], [9], [9], [9], [9]], plateau),
-        Piece(10,[[10, 10], [0, 10], [0, 10, 10]], plateau),
-        Piece(11,[[11, 11], [0, 11], [11, 11]], plateau),
-        Piece(12,[[12], [12], [12, 12], [0, 12]], plateau)
+        Piece(1, [[1, 1],\
+                                [1], \
+                                [1], \
+                                [1]], plateau),\
+                                \
+        Piece(2, [[0, 2],\
+                                [2, 2, 2], \
+                                [0, 2]], plateau),\
+                                \
+        Piece(3, [[3],\
+                                [3, 3, 3], \
+                                [0, 3]], plateau),\
+                                \
+        Piece(4, [[4], \
+                                [4, 4], \
+                                [4, 4]], plateau),\
+                                \
+        Piece(5, [[5], \
+                                [5], \
+                                [5, 5, 5]], plateau),\
+                                \
+        Piece(6, [[6, 6, 6], \
+                                [0, 6], \
+                                [0, 6]], plateau),\
+                                \
+        Piece(7, [[7], \
+                                [7, 7], \
+                                [0, 7, 7]], plateau),\
+                                \
+        Piece(8, [[8], \
+                                [8, 8], \
+                                [8], \
+                                [8]], plateau),\
+                                \
+        Piece(9, [[9], \
+                                [9], \
+                                [9], \
+                                [9], \
+                                [9]], plateau),\
+                                \
+        Piece(10,[[10,10], \
+                                [0, 10], \
+                                [0, 10, 10]], plateau),\
+                                \
+        Piece(11,[[11, 11], \
+                                [0, 11], \
+                                [11, 11]], plateau),\
+                                \
+        Piece(12,[[12], \
+                                [12,12], \
+                                [0, 12], \
+                                [0, 12]], plateau)\
     ]
     return piece
 
