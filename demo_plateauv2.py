@@ -1,39 +1,44 @@
 import pyxel
 
 class KataminoBoard:
-    def __init__(self, plateau, cell_size=30):
-        self.board = plateau
+    def __init__(self, board, cell_size=30):
+        self.board = board
         self.cell_size = cell_size
-        self.ligne = len(plateau)
-        self.cols = len(plateau[0]) if self.ligne > 0 else 0
-        
+        self.ligne = len(board)
+        self.cols = len(board[0]) if self.ligne > 0 else 0
 
         width = self.cols * cell_size
         height = self.ligne * cell_size
         pyxel.init(width, height, title="Katamino Board")
-        
 
         self.colors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-        
-        pyxel.run(self.update, self.draw)
-    
-    def update(self):
 
+        # Create a piece
+        self.piece = Piece(1, [[1, 1], [1], [1], [1]], self.board)
+
+        pyxel.run(self.update, self.draw)
+
+    def update(self):
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
-    
+        if pyxel.btnp(pyxel.KEY_P):
+            self.board = self.piece.place_on_plateau()
+        if pyxel.btnp(pyxel.KEY_LEFT):
+            self.board = self.piece.deplacement(0, -1)
+        if pyxel.btnp(pyxel.KEY_RIGHT):
+            self.board = self.piece.deplacement(0, 1)
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            self.board = self.piece.deplacement(1, 0)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.board = self.piece.rotate()
+
     def draw(self):
-
-        pyxel.cls(7) 
-        
-
+        pyxel.cls(7)
         for y in range(self.ligne):
             for x in range(self.cols):
                 value = self.board[y][x]
                 if value > 0:
-
                     color = self.colors[value % len(self.colors)]
-
                     pyxel.rect(
                         x * self.cell_size,
                         y * self.cell_size,
@@ -41,14 +46,13 @@ class KataminoBoard:
                         self.cell_size,
                         color
                     )
-                
-
                 pyxel.rectb(
                     x * self.cell_size,
                     y * self.cell_size,
                     self.cell_size,
                     self.cell_size,
-                    0 )
+                    0
+                )
 
 class Piece:
     def __init__(self, numero, patron, plateau):
@@ -56,7 +60,7 @@ class Piece:
         self.patron = patron
         self.plateau = plateau
         self.actual_coordinates = self.convert_to_coordinates()
-        
+
     def convert_to_coordinates(self):
         coordinates = []
         for i, row in enumerate(self.patron):
@@ -129,24 +133,11 @@ def create_pieces(plateau):
 
 def plateau_clear():
     plateau = [[0 for _ in range(18)] for _ in range(11)]
-    for y in range(11):
-        for x in range(18):
-            if 2 < y < 8 and 2 < x < 15:
-                pass
-            else:
-                plateau[y][x] = ""
+
     return plateau
 
 # Initialize plateau
-plateau = plateau_clear()
+plateau = [[0 for _ in range(12)] for _ in range(5)]
 
-# Create pieces
-pieces = create_pieces(plateau)
-
-plateau1=  [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-
-KataminoBoard(plateau1)
+# Create and run the game
+KataminoBoard(plateau)
