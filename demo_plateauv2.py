@@ -22,6 +22,10 @@ class KataminoBoard:
             pyxel.quit()
         if pyxel.btnp(pyxel.KEY_P):
             self.board = self.piece.place_on_plateau()
+        if pyxel.btnp(pyxel.KEY_R):
+            self.board = self.piece.rotate()
+        if pyxel.btnp(pyxel.KEY_E):
+            self.board = self.piece.symetrie()
         if pyxel.btnp(pyxel.KEY_LEFT):
             self.board = self.piece.deplacement(-1, 0)
         if pyxel.btnp(pyxel.KEY_RIGHT):
@@ -30,8 +34,7 @@ class KataminoBoard:
             self.board = self.piece.deplacement(0, 1)
         if pyxel.btnp(pyxel.KEY_UP):
             self.board = self.piece.deplacement(0, -1)
-        if pyxel.btnp(pyxel.KEY_R):
-            self.board = self.piece.rotate()
+        
 
     def draw(self):
         pyxel.cls(7)
@@ -61,7 +64,7 @@ class Piece:
         self.patron = patron
         self.plateau = plateau
         self.actual_coordinates = self.convert_to_coordinates()
-        
+
     def convert_to_coordinates(self):
         coordinates = []
         for i, row in enumerate(self.patron):
@@ -77,7 +80,6 @@ class Piece:
         return self.plateau
 
     def deplacement(self, dy, dx):
-
         for x, y in self.actual_coordinates:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
@@ -87,12 +89,8 @@ class Piece:
             new_x, new_y = x + dx, y + dy
             if 0 <= new_x < len(self.plateau) and 0 <= new_y < len(self.plateau[0]):
                 new_coordinates.append([new_x, new_y])
-            else:
-                pass
-        if len(new_coordinates)==5:
+        if len(new_coordinates) == len(self.actual_coordinates):
             self.actual_coordinates = new_coordinates
-        else:
-            pass
 
         return self.place_on_plateau()
 
@@ -101,25 +99,41 @@ class Piece:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        if self.numero in [6,8]:
+        if self.numero in [6, 8]:
             self.rotation_anchor = self.actual_coordinates[1]
-        if self.numero in [1,2,3,4,5,7,9,10,11,12]:
+        if self.numero in [1, 2, 3, 4, 5, 7, 9, 10, 11, 12]:
             self.rotation_anchor = self.actual_coordinates[2]
 
         anchor_x = self.rotation_anchor[0]
         anchor_y = self.rotation_anchor[1]
 
         translated_coordinates = [[x - anchor_x, y - anchor_y] for x, y in self.actual_coordinates]
-
         rotated_coordinates = [[y, -x] for x, y in translated_coordinates]
-
         final_coordinates = [[x + anchor_x, y + anchor_y] for x, y in rotated_coordinates]
+
         if all(0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]) for x, y in final_coordinates):
             self.actual_coordinates = final_coordinates
-        if len(final_coordinates) == len(self.actual_coordinates):
-            self.actual_coordinates = final_coordinates
-        else:
-            pass
+
+        return self.place_on_plateau()
+
+    def symetrie(self):
+        for x, y in self.actual_coordinates:
+            if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
+                self.plateau[x][y] = 0
+
+        # Find the maximum y-coordinate
+        max_y = max(y for x, y in self.actual_coordinates)
+
+       
+        symetrie_coordinates = [[x, max_y - y] for x, y in self.actual_coordinates]
+
+        min_y = min(y for x, y in self.actual_coordinates)
+        decalage = min_y - min(y for x, y in symetrie_coordinates)
+
+        symetrie_coordinates = [[x, y + decalage] for x, y in symetrie_coordinates]
+
+        if all(0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]) for x, y in symetrie_coordinates):
+            self.actual_coordinates = symetrie_coordinates
 
         return self.place_on_plateau()
 
