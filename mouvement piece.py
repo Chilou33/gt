@@ -16,6 +16,7 @@ class Piece():
         
 
 def piece1():
+    numPiece=1
     piece = [[1,1],
              [1],
              [1],
@@ -23,73 +24,84 @@ def piece1():
     return convert_piece(piece)
        
 def piece2(): 
+    numPiece=2
     piece = [[0,2],
              [2,2,2],
              [0,2]]
     return convert_piece(piece)
  
 def piece3():
+    numPiece=3
     piece = [[3],
              [3,3,3],
              [0,3]]
     return convert_piece(piece)
 
 def piece4():
-    piece = [[1],
-             [1,1],
-             [1,1]]
+    numPiece=4
+    piece = [[4],
+             [4,4],
+             [4,4]]
     return convert_piece(piece)
 
 def piece5():
-    piece=[[1],
-           [1],
-           [1,1,1]]
+    numPiece=5
+    piece=[[5],
+           [5],
+           [5,5,5]]
     return convert_piece(piece)
 
 def piece6():
-    piece=[[0,1],
-           [0,1],
-           [1,1,1]]
+    numPiece=6
+    piece=[[6,6,6],
+           [0,6],
+           [0,6]]
     return convert_piece(piece)
 
 def piece7():
-    piece=[[1],
-           [1,1],
-           [0,1,1],]
+    numPiece=7
+    piece=[[7],
+           [7,7],
+           [0,7,7],]
     return convert_piece(piece)
 
 def piece8():
-    piece=[[1],
-           [1,1],
-           [1],
-           [1]]
+    numPiece=8
+    piece=[[8],
+           [8,8],
+           [8],
+           [8]]
     return convert_piece(piece)
 
 def piece9():
-    piece=[[1],
-           [1],
-           [1],
-           [1],
-           [1]]
+    numPiece=9
+    piece=[[9],
+           [9],
+           [9],
+           [9],
+           [9]]
     return convert_piece(piece)
 
 def piece10():
-    piece=[[1,1],
-           [0,1],
-           [0,1,1]]
+    numPiece=10
+    piece=[[10,10],
+           [0,10],
+           [0,10,10]]
     return convert_piece(piece)
 
 def piece11():
-    piece=[[1,1],
-           [0,1],
-           [1,1]]
+    numPiece=11
+    piece=[[11,11],
+           [0,11],
+           [11,11]]
     return convert_piece(piece)
 
 def piece12():
-    piece=[[1],
-           [1],
-           [1,1],
-           [0,1],]
+    numPiece=12
+    piece=[[12],
+           [12],
+           [12,12],
+           [0,12],]
     return convert_piece(piece)
 
 
@@ -213,7 +225,7 @@ plateau1=  [[0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0],
     # return plateau
 
 
-hfyghyt
+
 
 
 
