@@ -23,15 +23,15 @@ def piece1():
     return convert_piece(piece)
        
 def piece2(): 
-    piece = [[0,1],
-             [1,1,1],
-             [0,1]]
+    piece = [[0,2],
+             [2,2,2],
+             [0,2]]
     return convert_piece(piece)
-
+ 
 def piece3():
-    piece = [[1],
-             [1,1,1],
-             [0,1]]
+    piece = [[3],
+             [3,3,3],
+             [0,3]]
     return convert_piece(piece)
 
 def piece4():
