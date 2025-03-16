@@ -29,7 +29,7 @@ def piece2():
              [2,2,2],
              [0,2]]
     return convert_piece(piece)
-
+ 
 def piece3():
     numPiece=3
     piece = [[3],
