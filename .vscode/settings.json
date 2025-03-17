@@ -1,4 +1,7 @@
 {
     "python.analysis.autoImportCompletions": false,
-    "python.analysis.inlayHints.callArgumentNames": "all"
+    "python.analysis.inlayHints.callArgumentNames": "all",
+    "cSpell.ignoreWords": [
+        "piece"
+    ]
 }
