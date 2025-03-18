@@ -8,10 +8,10 @@ class KataminoBoard:
         self.cols = len(board[0]) if self.ligne > 0 else 0
 
         width = self.cols * cell_size + 100  # Extra space for piece selection
-        height = self.ligne * cell_size +100
+        height = self.ligne * cell_size +400
         pyxel.init(width, height, title="Katamino Board")
 
-        self.colors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        self.colors = [0, 1, 2, 3, 4, 5, 6, 16, 8, 9, 10, 11, 12, 13, 14, 15]
 
         self.pieces = create_pieces(self.board)
         self.selected_piece_index = 0
@@ -20,6 +20,7 @@ class KataminoBoard:
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        pyxel.mouse(True)
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         if pyxel.btnp(pyxel.KEY_P):
