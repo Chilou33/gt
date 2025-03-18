@@ -1,0 +1,25 @@
+from tkinter import*
+
+def gagné(plateau1):
+    for lignes in plateau1:
+        for cases in lignes:
+            if cases == 0:
+                return False
+    return True
+
+def fentre():
+    if gagné == True:
+        mafenetre=Tk()
+        mafenetre.title(string='prochain niveau')
+        mafenetre.geometry(newGeometry='480x320')
+        boutonProchainNiv = Button(mafenetre,text='prochain niveau',command=prochainNiv)
+        boutonProchainNiv.place(x=50,y=50)
+        mafenetre.mainloop()
+
+def prochainNiv():
+    for lignes in plateau1:
+        for cases in plateau1:
+            cases ==0
+    for lignes in plateau1:
+        lignes.append(0)
+    mafenetre.destroy()
