@@ -1,0 +1,12 @@
+bleu clair : #64BCED
+bleu : #200CFF
+rouge : #FF1E27
+rouge foncé : #880015
+jaune : #FFFF00
+orange : #F58B1A
+vert : #20BD0F
+vert foncé : #104F12
+rose : #F585B1
+violet : #CA42D1
+bleu-violet : #6325D4
+vert-jaune : #807625
