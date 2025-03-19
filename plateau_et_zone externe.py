@@ -1,5 +1,7 @@
 import pyxel
 
+
+
 class KataminoBoard:
     def __init__(self, board, cell_size=30):
         self.board = board
@@ -7,11 +9,14 @@ class KataminoBoard:
         self.ligne = len(board)
         self.cols = len(board[0]) if self.ligne > 0 else 0
 
-        width = self.cols * cell_size + 100  # Extra space for piece selection
-        height = self.ligne * cell_size +400
+        width = self.cols * cell_size   # Extra space for piece selection
+        height = self.ligne * cell_size + 200
         pyxel.init(width, height, title="Katamino Board")
 
-        self.colors = [0, 1, 2, 3, 4, 5, 6, 16, 8, 9, 10, 11, 12, 13, 14, 15]
+        pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
+        self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+        pyxel.load("test_déplacement_pièce.pyxres")
 
         self.pieces = create_pieces(self.board)
         self.selected_piece_index = 0
@@ -42,12 +47,12 @@ class KataminoBoard:
             self.selected_piece = self.pieces[self.selected_piece_index]
 
     def draw(self):
-        pyxel.cls(7)
+        pyxel.cls(1)
         for y in range(self.ligne):
             for x in range(self.cols):
                 value = self.board[y][x]
                 if value > 0:
-                    color = self.colors[value % len(self.colors)]
+                    color = self.colors[(value % len(self.colors))-1]
                     pyxel.rect(
                         x * self.cell_size,
                         y * self.cell_size,
@@ -64,23 +69,16 @@ class KataminoBoard:
                 )
 
         # Draw piece selection area
-        pyxel.text(self.cols * self.cell_size + 10, 10, "Select Piece:", 0)
+        pyxel.text(10, self.ligne * self.cell_size + 10, "Select Piece:", 0)
         for i, piece in enumerate(self.pieces):
-            color = self.colors[piece.numero % len(self.colors)]
-            pyxel.rect(
-                self.cols * self.cell_size + 10,
-                30 + i * 20,
-                10,
-                10,
-                color
-            )
+            pyxel.blt(30 + i * 20, self.ligne * self.cell_size + 30, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
             if i == self.selected_piece_index:
                 pyxel.rectb(
-                    self.cols * self.cell_size + 10,
                     30 + i * 20,
+                    self.ligne * self.cell_size + 10,
                     10,
                     10,
-                    0
+                    0,
                 )
 
 class Piece:
