@@ -16,7 +16,7 @@ class KataminoBoard:
         pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
-        pyxel.load("test_déplacement_pièce.pyxres")
+        pyxel.load("NouvellePalette.pyxres")
 
         self.pieces = create_pieces(self.board)
         self.selected_piece_index = 0
