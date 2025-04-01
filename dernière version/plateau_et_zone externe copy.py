@@ -66,10 +66,6 @@ class KataminoBoard:
                 self.alert_message = "Déplacement impossible!"
                 self.alert_timer = self.alert_duration
         if pyxel.btnp(pyxel.KEY_N):
-            # Retirer la pièce actuelle du plateau
-            for x, y in self.selected_piece.actual_coordinates:
-                if 0 <= x < len(self.board) and 0 <= y < len(self.board[0]):
-                    self.board[x][y] = 0
                     
             # Changer l'index de la pièce sélectionnée
             self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
@@ -103,6 +99,7 @@ class KataminoBoard:
 
         # Draw piece selection area
         pyxel.text(10, self.ligne * self.cell_size + 10, "Select Piece:", 0)
+        liste_des_coordonnees_des_boutons = []
         for i, piece in enumerate(self.pieces):
             pyxel.blt(30 + i * 20, self.ligne * self.cell_size + 30, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
             if i == self.selected_piece_index:
@@ -114,6 +111,9 @@ class KataminoBoard:
                     0,
                 )
         
+
+        liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 10))
+
         # Afficher l'alerte si nécessaire
         if self.alert_timer > 0:
             message_x = 10
