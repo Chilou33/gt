@@ -17,173 +17,187 @@ class KataminoBoard:
 
         pyxel.load("NouvellePalette.pyxres")
 
-        self.pieces = create_pieces(self.board)
-        self.selected_piece_index = 0
-        self.selected_piece = self.pieces[self.selected_piece_index]
+        # Mode prévisualisation et plateaux - les initialiser AVANT de créer les pièces
+        self.preview_mode = True  # Toujours en mode prévisualisation
+        self.original_board = [row[:] for row in self.board]  # Plateau principal (pièces fixées)
+        self.preview_board = [row[:] for row in self.board]   # Plateau de prévisualisation
+        self.free_placement = True  # Permet de déplacer librement la pièce
+
+        # Variables pour gérer le placement des pièces
+        self.confirm_key = pyxel.KEY_RETURN  # Touche Entrée
         
         # Ajouter un système d'alerte
         self.alert_message = ""
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
         
-        # Mode prévisualisation pour le placement des pièces
-        self.preview_mode = False
-        self.original_board = [row[:] for row in self.board]  # Copie profonde du plateau
-        self.preview_board = [row[:] for row in self.board]   # Plateau de prévisualisation
+        # Initialiser les pièces APRÈS avoir créé les plateaux
+        self.pieces = create_pieces(self.board)
+        self.selected_piece_index = 0
+        self.selected_piece = self.pieces[self.selected_piece_index]
+        
+        # Initialiser la position de la première pièce
+        self.init_piece_position(self.selected_piece)
 
         pyxel.run(self.update, self.draw)
+        
+    def init_piece_position(self, piece):
+        # Effacer la pièce du plateau de prévisualisation si elle y était déjà
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                if self.preview_board[y][x] == piece.numero:
+                    self.preview_board[y][x] = 0
+                    
+        # Positionner la pièce au centre du plateau pour faciliter le placement
+        offset_x = self.cols // 2 - 1
+        offset_y = self.ligne // 2 - 1
+        new_coords = []
+        for i, row in enumerate(piece.patron):
+            for j, val in enumerate(row):
+                if val != 0:
+                    new_coords.append([offset_y + i, offset_x + j])
+        piece.actual_coordinates = new_coords
+        
+        # Recréer le plateau de prévisualisation à partir du plateau principal
+        self.preview_board = [row[:] for row in self.original_board]
+        
+        # Placer la nouvelle pièce sur le plateau de prévisualisation
+        piece.place_on_plateau(True, self.preview_board)
 
     def update(self):
         pyxel.mouse(True)
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
+
+        # Gestion de la touche Entrée - Confirmation du placement
+        if pyxel.btnp(self.confirm_key):
+            # Vérifier si le placement est valide, même en mode libre
+            # On vérifie s'il y a des collisions avec d'autres pièces déjà placées
+            has_collision = self.check_collision_with_placed_pieces()
             
-        if pyxel.btnp(pyxel.KEY_P):
-            if self.preview_mode:
-                # En mode prévisualisation, confirmer le placement
-                success = self.check_valid_placement()
-                if success:
-                    # Copier le plateau de prévisualisation dans le plateau principal
-                    self.board = [row[:] for row in self.preview_board]
-                    self.original_board = [row[:] for row in self.board]
-                    self.preview_mode = False
-                    self.alert_message = "Pièce placée!"
-                    self.alert_timer = self.alert_duration
-                else:
-                    self.alert_message = "Placement invalide!"
-                    self.alert_timer = self.alert_duration
-            else:
-                # En mode normal, entrer en mode prévisualisation
-                self.preview_mode = True
-                self.original_board = [row[:] for row in self.board]
-                # Initialiser le plateau de prévisualisation
-                self.preview_board = [row[:] for row in self.board]
-                # Passer la référence du plateau à la pièce sélectionnée
-                self.selected_piece.preview_plateau = self.preview_board
-                self.alert_message = "Positionnez la pièce puis appuyez sur P pour confirmer"
+            if has_collision:
+                self.alert_message = "Collision détectée! Déplacez la pièce."
                 self.alert_timer = self.alert_duration
+                return
                 
-        if pyxel.btnp(pyxel.KEY_ESCAPE) and self.preview_mode:
-            # Annuler le mode prévisualisation
-            self.preview_mode = False
-            self.preview_board = [row[:] for row in self.board]
-            self.alert_message = "Placement annulé"
+            # Si pas de collision, on procède au placement
+            # Conserver les pièces déjà placées lors du placement d'une nouvelle pièce
+            # Sauvegarde temporaire des valeurs du plateau principal
+            new_board = [row[:] for row in self.original_board]
+            
+            # Pour chaque cellule, ne mettre à jour que les cellules correspondant à la pièce actuelle
+            for y in range(self.ligne):
+                for x in range(self.cols):
+                    if self.preview_board[y][x] == self.selected_piece.numero:
+                        new_board[y][x] = self.selected_piece.numero
+            
+            # Mettre à jour le plateau principal
+            self.original_board = new_board
+            self.alert_message = f"Pièce {self.selected_piece.numero} placée!"
             self.alert_timer = self.alert_duration
-
-        if self.preview_mode:
-            # En mode prévisualisation, manipuler la pièce sur le plateau de prévisualisation
-            active_board = self.preview_board
-        else:
-            active_board = self.board
-
-        # SECTION MODIFIÉE: Gestion des commandes avec mode prévisualisation
-        if pyxel.btnp(pyxel.KEY_R):
-            result, success = self.selected_piece.rotate(self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Rotation impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_E):
-            result, success = self.selected_piece.symetrie(self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Symétrie impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_LEFT):
-            result, success = self.selected_piece.deplacement(-1, 0, self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Déplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_RIGHT):
-            result, success = self.selected_piece.deplacement(1, 0, self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Déplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_DOWN):
-            result, success = self.selected_piece.deplacement(0, 1, self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Déplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_UP):
-            result, success = self.selected_piece.deplacement(0, -1, self.preview_mode, active_board)
-            if self.preview_mode:
-                self.preview_board = result
-                # Ne pas afficher d'alerte en mode prévisualisation
-            else:
-                self.board = result
-                if not success:
-                    self.alert_message = "Déplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                
-        if pyxel.btnp(pyxel.KEY_N) and not self.preview_mode:
-            # Changer l'index de la pièce sélectionnée (uniquement hors mode prévisualisation)
+            
+            # Passer automatiquement à la pièce suivante
             self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
             self.selected_piece = self.pieces[self.selected_piece_index]
+            self.init_piece_position(self.selected_piece)
+                
+        if pyxel.btnp(pyxel.KEY_F):
+            # Touche F pour activer/désactiver le mode de placement libre
+            self.free_placement = not self.free_placement
+            if self.free_placement:
+                self.alert_message = "Mode libre activé - placement sans contraintes"
+            else:
+                self.alert_message = "Mode réglementé activé - vérification des collisions"
+            self.alert_timer = self.alert_duration
+                
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
+            # Annuler les changements et réinitialiser la position de la pièce
+            self.preview_board = [row[:] for row in self.original_board]
+            self.alert_message = "Placement annulé"
+            self.alert_timer = self.alert_duration
+            self.init_piece_position(self.selected_piece)
+
+        # Gestion des commandes de manipulation des pièces sur le plateau de prévisualisation
+        if pyxel.btnp(pyxel.KEY_R):
+            result, _ = self.selected_piece.rotate(True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_E):
+            result, _ = self.selected_piece.symetrie(True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_LEFT):
+            result, _ = self.selected_piece.deplacement(-1, 0, True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_RIGHT):
+            result, _ = self.selected_piece.deplacement(1, 0, True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            result, _ = self.selected_piece.deplacement(0, 1, True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_UP):
+            result, _ = self.selected_piece.deplacement(0, -1, True, self.preview_board, self.free_placement)
+            self.preview_board = result
+                
+        if pyxel.btnp(pyxel.KEY_N):
+            # Changer manuellement la pièce sans la placer
+            self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+            self.selected_piece = self.pieces[self.selected_piece_index]
+            self.init_piece_position(self.selected_piece)
+            self.alert_message = f"Pièce {self.selected_piece.numero} sélectionnée"
+            self.alert_timer = self.alert_duration
         
         # Mettre à jour le timer d'alerte
         if self.alert_timer > 0:
             self.alert_timer -= 1
 
     def check_valid_placement(self):
-        # Vérifier s'il y a des collisions entre la pièce sélectionnée et les pièces déjà placées
+        # Vérifier uniquement les collisions avec les pièces déjà placées sur le plateau principal
         piece_coords = self.selected_piece.actual_coordinates
         
         # Vérifier les limites du plateau
-        if not all(0 <= x < len(self.board) and 0 <= y < len(self.board[0]) for x, y in piece_coords):
+        if not all(0 <= x < len(self.original_board) and 0 <= y < len(self.original_board[0]) for x, y in piece_coords):
             return False
             
-        # Vérifier les collisions avec d'autres pièces
+        # Vérifier les collisions avec d'autres pièces du plateau principal
         for x, y in piece_coords:
-            if self.board[x][y] != 0 and self.board[x][y] != self.selected_piece.numero:
+            if self.original_board[x][y] != 0 and self.original_board[x][y] != self.selected_piece.numero:
                 return False
                 
         return True
 
+    def check_collision_with_placed_pieces(self):
+        """Vérifie si la pièce actuelle entre en collision avec des pièces déjà placées sur le plateau original."""
+        piece_coords = []
+        
+        # Récupérer les coordonnées de la pièce sélectionnée dans le plateau de prévisualisation
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                if self.preview_board[y][x] == self.selected_piece.numero:
+                    piece_coords.append([y, x])
+        
+        # Vérifier les collisions avec les pièces déjà placées
+        for y, x in piece_coords:
+            if self.original_board[y][x] != 0 and self.original_board[y][x] != self.selected_piece.numero:
+                return True  # Collision détectée
+        
+        return False  # Pas de collision
+
     def draw(self):
         pyxel.cls(1)
         
-        # Déterminer quel plateau dessiner (principal ou prévisualisation)
-        display_board = self.preview_board if self.preview_mode else self.board
+        # Dessiner deux plateaux côte à côte si la fenêtre est assez large
+        plateau_width = self.cols * self.cell_size
         
+        # Dessiner le plateau principal (pièces déjà placées)
         for y in range(self.ligne):
             for x in range(self.cols):
-                value = display_board[y][x]
+                value = self.original_board[y][x]
                 if value > 0:
-                    # En mode prévisualisation, utiliser une couleur grisée pour les pièces déjà placées 
-                    # mais pas pour la pièce actuelle
-                    if self.preview_mode and value != self.selected_piece.numero:
-                        color = self.gray_color
-                    else:
-                        color = self.colors[(value % len(self.colors))-1]
-                        
+                    color = self.colors[(value % len(self.colors))-1]
                     pyxel.rect(
                         x * self.cell_size,
                         y * self.cell_size,
@@ -191,6 +205,7 @@ class KataminoBoard:
                         self.cell_size,
                         color
                     )
+                # Dessiner la grille
                 pyxel.rectb(
                     x * self.cell_size,
                     y * self.cell_size,
@@ -198,20 +213,31 @@ class KataminoBoard:
                     self.cell_size,
                     0
                 )
-        
-        # Si en mode prévisualisation, dessiner un contour spécial autour de la pièce active
-        if self.preview_mode:
-            for x, y in self.selected_piece.actual_coordinates:
-                if 0 <= x < len(self.board) and 0 <= y < len(self.board[0]):
-                    pyxel.rectb(
-                        y * self.cell_size,
+                
+        # Dessiner le plateau de prévisualisation avec la pièce actuelle
+        # (la pièce actuelle est déjà incluse dans preview_board)
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                # N'afficher que la pièce en cours de manipulation (celle qui n'est pas encore placée)
+                if self.preview_board[y][x] == self.selected_piece.numero:
+                    pyxel.rect(
                         x * self.cell_size,
+                        y * self.cell_size,
+                        self.cell_size,
+                        self.cell_size,
+                        self.colors[(self.selected_piece.numero % len(self.colors))-1]
+                    )
+                    
+                    # Ajouter un contour de surbrillance pour la pièce active
+                    pyxel.rectb(
+                        x * self.cell_size,
+                        y * self.cell_size,
                         self.cell_size,
                         self.cell_size,
                         7  # Couleur de surbrillance
                     )
 
-        # Draw piece selection area
+        # Afficher les informations de l'interface utilisateur
         pyxel.text(10, self.ligne * self.cell_size + 5, "Select Piece:", 0)
         liste_des_coordonnees_des_boutons = []
         for i, piece in enumerate(self.pieces):
@@ -220,9 +246,9 @@ class KataminoBoard:
                 pyxel.rectb(
                     30 + i * 20,
                     self.ligne * self.cell_size + 30,
-                    16,  # Augmenter la taille du cadre
-                    16,  # Augmenter la taille du cadre
-                    8,  # Couleur plus visible
+                    16,  # Taille du cadre
+                    16,  # Taille du cadre
+                    8,  # Couleur du cadre
                 )
         
         liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 30))
@@ -238,12 +264,13 @@ class KataminoBoard:
         pyxel.text(10, controls_y, "Contrôles:", 0)
         pyxel.text(10, controls_y + 10, "Flèches: Déplacer", 0)
         pyxel.text(10, controls_y + 20, "R: Rotation, E: Symétrie", 0)
-        pyxel.text(10, controls_y + 30, "P: Placer/Confirmer, ESC: Annuler", 0)
-        pyxel.text(10, controls_y + 40, "N: Pièce suivante", 0)
+        pyxel.text(10, controls_y + 30, "Entrée: Placer et passer à la pièce suivante", 0)
+        pyxel.text(10, controls_y + 40, "N: Changer de pièce, ESC: Annuler", 0)
+        pyxel.text(10, controls_y + 50, "F: Mode libre On/Off", 0)
         
         # Afficher le mode actuel
-        mode_text = "Mode: Prévisualisation" if self.preview_mode else "Mode: Sélection"
-        pyxel.text(10, controls_y + 60, mode_text, 8 if self.preview_mode else 3)
+        mode_text = "Mode: " + ("Libre" if self.free_placement else "Réglementé")
+        pyxel.text(10, controls_y + 70, mode_text, 8 if self.free_placement else 3)
 
 
 class Piece:
@@ -281,8 +308,9 @@ class Piece:
             
         # Vérifier les collisions avec d'autres pièces
         for x, y in coordinates:
-            if board[x][y] != 0 and board[x][y] != self.numero:
-                return True  # Collision avec une autre pièce
+            if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                if board[x][y] != 0 and board[x][y] != self.numero:
+                    return True  # Collision avec une autre pièce
                 
         return False  # Pas de collision
         
@@ -290,7 +318,7 @@ class Piece:
         # Cette méthode est maintenant gérée par KataminoBoard.check_valid_placement()
         return True
 
-    def deplacement(self, dy, dx, is_preview=False, target_board=None):
+    def deplacement(self, dy, dx, is_preview=False, target_board=None, free_mode=False):
         # Utiliser le plateau spécifié ou le plateau par défaut
         board = target_board if target_board is not None else self.plateau
         
@@ -308,16 +336,32 @@ class Piece:
             new_x, new_y = x + dx, y + dy
             new_coordinates.append([new_x, new_y])
         
-        # Vérifier les collisions
-        if not self.check_collision(new_coordinates, is_preview, board):
-            self.actual_coordinates = new_coordinates
-            return self.place_on_plateau(is_preview, board), True
-        
-        # Si le déplacement est impossible, restaurer l'état initial
-        self.actual_coordinates = old_coordinates
-        return self.place_on_plateau(is_preview, board), False
+        # En mode libre, on ignore les collisions
+        if free_mode:
+            # Filtrer les coordonnées qui sont hors plateau
+            valid_coordinates = []
+            for x, y in new_coordinates:
+                if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                    valid_coordinates.append([x, y])
+                    
+            if valid_coordinates:  # Si au moins une partie de la pièce reste visible
+                self.actual_coordinates = new_coordinates
+                return self.place_on_plateau(is_preview, board), True
+            else:
+                # Si toute la pièce sort du plateau, on ne déplace pas
+                self.actual_coordinates = old_coordinates
+                return self.place_on_plateau(is_preview, board), False
+        else:
+            # En mode normal, on vérifie les collisions
+            if not self.check_collision(new_coordinates, is_preview, board):
+                self.actual_coordinates = new_coordinates
+                return self.place_on_plateau(is_preview, board), True
+            
+            # Si le déplacement est impossible, restaurer l'état initial
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau(is_preview, board), False
 
-    def rotate(self, is_preview=False, target_board=None):
+    def rotate(self, is_preview=False, target_board=None, free_mode=False):
         # Utiliser le plateau spécifié ou le plateau par défaut
         board = target_board if target_board is not None else self.plateau
         
@@ -343,16 +387,32 @@ class Piece:
         rotated_coordinates = [[y, -x] for x, y in translated_coordinates]
         final_coordinates = [[x + anchor_x, y + anchor_y] for x, y in rotated_coordinates]
 
-        # Vérifier les collisions
-        if not self.check_collision(final_coordinates, is_preview, board):
-            self.actual_coordinates = final_coordinates
-            return self.place_on_plateau(is_preview, board), True
-        
-        # Si la rotation est impossible, restaurer l'état initial
-        self.actual_coordinates = old_coordinates
-        return self.place_on_plateau(is_preview, board), False
+        # En mode libre, on ignore les collisions
+        if free_mode:
+            # Filtrer les coordonnées qui sont hors plateau
+            valid_coordinates = []
+            for x, y in final_coordinates:
+                if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                    valid_coordinates.append([x, y])
+                    
+            if valid_coordinates:  # Si au moins une partie de la pièce reste visible
+                self.actual_coordinates = final_coordinates
+                return self.place_on_plateau(is_preview, board), True
+            else:
+                # Si toute la pièce sort du plateau, on ne fait pas la rotation
+                self.actual_coordinates = old_coordinates
+                return self.place_on_plateau(is_preview, board), False
+        else:
+            # En mode normal, on vérifie les collisions
+            if not self.check_collision(final_coordinates, is_preview, board):
+                self.actual_coordinates = final_coordinates
+                return self.place_on_plateau(is_preview, board), True
+            
+            # Si la rotation est impossible, restaurer l'état initial
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau(is_preview, board), False
 
-    def symetrie(self, is_preview=False, target_board=None):
+    def symetrie(self, is_preview=False, target_board=None, free_mode=False):
         # Utiliser le plateau spécifié ou le plateau par défaut
         board = target_board if target_board is not None else self.plateau
         
@@ -373,14 +433,30 @@ class Piece:
 
         symetrie_coordinates = [[x, y + decalage] for x, y in symetrie_coordinates]
 
-        # Vérifier les collisions
-        if not self.check_collision(symetrie_coordinates, is_preview, board):
-            self.actual_coordinates = symetrie_coordinates
-            return self.place_on_plateau(is_preview, board), True
-            
-        # Restaurer l'état initial si la symétrie est impossible
-        self.actual_coordinates = old_coordinates
-        return self.place_on_plateau(is_preview, board), False
+        # En mode libre, on ignore les collisions
+        if free_mode:
+            # Filtrer les coordonnées qui sont hors plateau
+            valid_coordinates = []
+            for x, y in symetrie_coordinates:
+                if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                    valid_coordinates.append([x, y])
+                    
+            if valid_coordinates:  # Si au moins une partie de la pièce reste visible
+                self.actual_coordinates = symetrie_coordinates
+                return self.place_on_plateau(is_preview, board), True
+            else:
+                # Si toute la pièce sort du plateau, on ne fait pas la symétrie
+                self.actual_coordinates = old_coordinates
+                return self.place_on_plateau(is_preview, board), False
+        else:
+            # En mode normal, on vérifie les collisions
+            if not self.check_collision(symetrie_coordinates, is_preview, board):
+                self.actual_coordinates = symetrie_coordinates
+                return self.place_on_plateau(is_preview, board), True
+                
+            # Restaurer l'état initial si la symétrie est impossible
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau(is_preview, board), False
 
 
 def create_pieces(plateau):
