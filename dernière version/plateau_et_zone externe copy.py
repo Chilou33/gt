@@ -110,10 +110,8 @@ class KataminoBoard:
                     10,
                     0,
                 )
-        
-
-        liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 10))
-
+            liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 10))
+            
         # Afficher l'alerte si nécessaire
         if self.alert_timer > 0:
             message_x = 10
