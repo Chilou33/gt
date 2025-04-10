@@ -7,14 +7,11 @@ class PageAccueil:
         pyxel.run(self.update, self.draw)  # Lancer la boucle principale de Pyxel, qui appelle 'update' et 'draw' en boucle
 
     def update(self):  # Fonction pour mettre à jour les événements du jeu
-        if pyxel.btnp(pyxel.KEY_Q):  # Si la touche 'Q' est pressée
-            pyxel.quit()  # Quitter le programme
         if self.page == "accueil":
+            if pyxel.btnp(pyxel.KEY_Q):  # Si la touche 'Q' est pressée
+              pyxel.quit()  # Quitter le programme
             if pyxel.btnp(pyxel.KEY_ENTER):  # Appuyer sur 'ENTER' pour changer de page
-                self.page = "jeu"
-        elif self.page == "jeu":
-            if pyxel.btnp(pyxel.KEY_Q):
-                pyxel.quit()
+              self.page = "jeu"
 
     def draw(self):   # Fonction pour dessiner les éléments à l'écran
         pyxel.cls(0)  # Efface l'écran avec la couleur noire (0 correspond au noir dans Pyxel)
@@ -31,8 +28,9 @@ class PageJeu:
         pyxel.run(self.update, self.draw)
 
     def update(self):
-        if pyxel.btnp(pyxel.KEY_Q):
-            pyxel.quit()
+        if self.page == jeu :
+            if pyxel.btnp(pyxel.KEY_Q):
+              pyxel.quit()
 
     def draw(self):
         pyxel.cls(0)
