@@ -170,7 +170,7 @@ class KataminoBoard:
         return True
 
     def check_collision_with_placed_pieces(self):
-        """Vérifie si la pièce actuelle entre en collision avec des pièces déjà placées sur le plateau original."""
+        """Vérifie si la pièce actuelle entre en collision avec des pièces déjà placées ou dépasse les limites du plateau."""
         piece_coords = []
         
         # Récupérer les coordonnées de la pièce sélectionnée dans le plateau de prévisualisation
@@ -179,12 +179,22 @@ class KataminoBoard:
                 if self.preview_board[y][x] == self.selected_piece.numero:
                     piece_coords.append([y, x])
         
+        # Si aucune coordonnée n'est trouvée, cela signifie que la pièce est entièrement hors du plateau
+        if not piece_coords:
+            return True  # La pièce est hors limites
+            
+        # Comparer avec le nombre de coordonnées original de la pièce
+        # Si certaines parties sont manquantes, c'est que la pièce dépasse les limites
+        original_piece_size = len(self.selected_piece.actual_coordinates)
+        if len(piece_coords) < original_piece_size:
+            return True  # La pièce est partiellement hors limites
+        
         # Vérifier les collisions avec les pièces déjà placées
         for y, x in piece_coords:
             if self.original_board[y][x] != 0 and self.original_board[y][x] != self.selected_piece.numero:
                 return True  # Collision détectée
         
-        return False  # Pas de collision
+        return False  # Pas de collision ni de pièce hors limites
 
     def draw(self):
         pyxel.cls(1)
@@ -413,16 +423,6 @@ class Piece:
             return self.place_on_plateau(is_preview, board), False
 
     def symetrie(self, is_preview=False, target_board=None, free_mode=False):
-        # Utiliser le plateau spécifié ou le plateau par défaut
-        board = target_board if target_board is not None else self.plateau
-        
-        # Sauvegarde de l'état actuel
-        old_coordinates = self.actual_coordinates.copy()
-        
-        # Effacer la pièce actuelle du plateau
-        for x, y in self.actual_coordinates:
-            if 0 <= x < len(board) and 0 <= y < len(board[0]):
-                board[x][y] = 0
 
         # Calculer les nouvelles coordonnées pour la symétrie
         max_y = max(y for x, y in self.actual_coordinates)
