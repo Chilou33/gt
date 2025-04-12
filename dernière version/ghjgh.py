@@ -1,4 +1,24 @@
 import pyxel
+import unicodedata
+
+def remove_accents(text):
+    """Remplace les caractères accentués par leurs équivalents sans accent."""
+    try:
+        text = unicodedata.normalize('NFKD', text)
+        text = ''.join([c for c in text if not unicodedata.combining(c)])
+        # Remplacements manuels pour certains caractères spécifiques
+        replacements = {
+            'œ': 'oe', 'Œ': 'OE',
+            'æ': 'ae', 'Æ': 'AE',
+            'ç': 'c', 'Ç': 'C',
+            '«': '"', '»': '"'
+        }
+        for char, replacement in replacements.items():
+            text = text.replace(char, replacement)
+        return text
+    except:
+        # En cas d'erreur, renvoyer le texte original
+        return text
 
 class KataminoBoard:
     def __init__(self, board, cell_size=30):
@@ -26,10 +46,18 @@ class KataminoBoard:
         # Variables pour gérer le placement des pièces
         self.confirm_key = pyxel.KEY_RETURN  # Touche Entrée
         
-        # Ajouter un système d'alerte
+        # Système d'alerte amélioré
         self.alert_message = ""
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
+        
+        # Variables pour la sélection de pièces déjà placées
+        self.reselect_mode = False  # Mode de re-sélection des pièces déjà placées
+        self.reselected_piece = None  # Pièce re-sélectionnée (déjà placée)
+        self.reselected_piece_numero = 0  # Numéro de la pièce re-sélectionnée
+        
+        # Ajouter une variable pour stocker les coordonnées des boutons de pièces
+        self.piece_buttons = []
         
         # Initialiser les pièces APRÈS avoir créé les plateaux
         self.pieces = create_pieces(self.board)
@@ -66,8 +94,73 @@ class KataminoBoard:
 
     def update(self):
         pyxel.mouse(True)
+        mouse_x = pyxel.mouse_x
+        mouse_y = pyxel.mouse_y
+        
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
+
+        # Gestion du clic de souris pour sélectionner une pièce déjà placée ou depuis la zone de sélection
+        if pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            # Vérifier d'abord si le clic est sur un des boutons de pièces en bas
+            button_clicked = False
+            for i, (btn_x, btn_y) in enumerate(self.piece_buttons):
+                # Zone de clic de 16x16 pixels pour chaque bouton
+                if btn_x <= mouse_x < btn_x + 16 and btn_y <= mouse_y < btn_y + 16:
+                    # Sélectionner cette pièce
+                    self.selected_piece_index = i
+                    self.selected_piece = self.pieces[i]
+                    self.init_piece_position(self.selected_piece)
+                    self.alert_message = f"Pièce {self.selected_piece.numero} sélectionnée"
+                    self.alert_timer = self.alert_duration
+                    button_clicked = True
+                    break
+            
+            # Si aucun bouton n'a été cliqué, vérifier si le clic est sur le plateau
+            if not button_clicked:
+                cell_x = mouse_x // self.cell_size
+                cell_y = mouse_y // self.cell_size
+                
+                # Vérifier si le clic est dans la grille
+                if 0 <= cell_x < self.cols and 0 <= cell_y < self.ligne:
+                    clicked_piece_numero = self.original_board[cell_y][cell_x]
+                    
+                    # Si on a cliqué sur une pièce existante (non vide)
+                    if clicked_piece_numero > 0:
+                        self.reselect_mode = True
+                        self.reselected_piece_numero = clicked_piece_numero
+                        
+                        # Récupérer toutes les coordonnées de la pièce cliquée
+                        piece_coords = []
+                        for y in range(self.ligne):
+                            for x in range(self.cols):
+                                if self.original_board[y][x] == clicked_piece_numero:
+                                    piece_coords.append([y, x])
+                        
+                        # Trouver l'instance de pièce correspondante
+                        for piece in self.pieces:
+                            if piece.numero == clicked_piece_numero:
+                                # Mettre à jour la sélection
+                                self.selected_piece = piece
+                                self.selected_piece_index = self.pieces.index(piece)
+                                self.reselected_piece = piece
+                                
+                                # Mettre à jour les coordonnées actuelles de la pièce
+                                piece.actual_coordinates = piece_coords.copy()
+                                
+                                # Retirer UNIQUEMENT la pièce cliquée du plateau principal
+                                for y in range(self.ligne):
+                                    for x in range(self.cols):
+                                        if self.original_board[y][x] == clicked_piece_numero:
+                                            self.original_board[y][x] = 0
+                                
+                                # Mettre à jour le plateau de prévisualisation
+                                self.preview_board = [row[:] for row in self.original_board]
+                                piece.place_on_plateau(True, self.preview_board)
+                                
+                                self.alert_message = f"Pièce {clicked_piece_numero} sélectionnée pour déplacement"
+                                self.alert_timer = self.alert_duration
+                                break
 
         # Gestion de la touche Entrée - Confirmation du placement
         if pyxel.btnp(self.confirm_key):
@@ -96,10 +189,15 @@ class KataminoBoard:
             self.alert_message = f"Pièce {self.selected_piece.numero} placée!"
             self.alert_timer = self.alert_duration
             
-            # Passer automatiquement à la pièce suivante
-            self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
-            self.selected_piece = self.pieces[self.selected_piece_index]
-            self.init_piece_position(self.selected_piece)
+            # Si on était en mode de re-sélection, désactiver ce mode
+            if self.reselect_mode:
+                self.reselect_mode = False
+                self.reselected_piece = None
+            else:
+                # Sinon passer automatiquement à la pièce suivante
+                self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+                self.selected_piece = self.pieces[self.selected_piece_index]
+                self.init_piece_position(self.selected_piece)
                 
         if pyxel.btnp(pyxel.KEY_F):
             # Touche F pour activer/désactiver le mode de placement libre
@@ -111,11 +209,44 @@ class KataminoBoard:
             self.alert_timer = self.alert_duration
                 
         if pyxel.btnp(pyxel.KEY_ESCAPE):
-            # Annuler les changements et réinitialiser la position de la pièce
-            self.preview_board = [row[:] for row in self.original_board]
-            self.alert_message = "Placement annulé"
+            # Si on était en mode re-sélection, remettre la pièce à sa position d'origine
+            if self.reselect_mode:
+                # CORRECTION: Replacer correctement la pièce sur le plateau principal
+                for y, x in self.reselected_piece.actual_coordinates:
+                    if 0 <= y < self.ligne and 0 <= x < self.cols:
+                        self.original_board[y][x] = self.reselected_piece.numero
+                
+                # Recréer le plateau de prévisualisation à partir du plateau principal
+                self.preview_board = [row[:] for row in self.original_board]
+                
+                # Sortir du mode re-sélection
+                self.reselect_mode = False
+                self.reselected_piece = None
+                
+                # Sélectionner la première pièce non placée
+                for i, piece in enumerate(self.pieces):
+                    placed = False
+                    for y in range(self.ligne):
+                        for x in range(self.cols):
+                            if self.original_board[y][x] == piece.numero:
+                                placed = True
+                                break
+                        if placed:
+                            break
+                    if not placed:
+                        self.selected_piece_index = i
+                        self.selected_piece = self.pieces[i]
+                        self.init_piece_position(self.selected_piece)
+                        break
+                
+                self.alert_message = "Déplacement annulé"
+            else:
+                # Annuler les changements et réinitialiser la position de la pièce
+                self.preview_board = [row[:] for row in self.original_board]
+                self.alert_message = "Placement annulé"
+                self.init_piece_position(self.selected_piece)
+                
             self.alert_timer = self.alert_duration
-            self.init_piece_position(self.selected_piece)
 
         # Gestion des commandes de manipulation des pièces sur le plateau de prévisualisation
         if pyxel.btnp(pyxel.KEY_R):
@@ -230,13 +361,37 @@ class KataminoBoard:
             for x in range(self.cols):
                 # N'afficher que la pièce en cours de manipulation (celle qui n'est pas encore placée)
                 if self.preview_board[y][x] == self.selected_piece.numero:
-                    pyxel.rect(
-                        x * self.cell_size,
-                        y * self.cell_size,
-                        self.cell_size,
-                        self.cell_size,
-                        self.colors[(self.selected_piece.numero % len(self.colors))-1]
-                    )
+                    # Si la pièce est celle qu'on vient de sélectionner (en mode resélection)
+                    if self.reselect_mode and self.preview_board[y][x] == self.reselected_piece_numero:
+                        # Couleur plus vive pour la pièce resélectionnée
+                        color = self.colors[(self.selected_piece.numero % len(self.colors))-1]
+                        
+                        # Dessiner la pièce avec une couleur plus vive
+                        pyxel.rect(
+                            x * self.cell_size,
+                            y * self.cell_size,
+                            self.cell_size,
+                            self.cell_size,
+                            color
+                        )
+                        
+                        # Ajouter un contour de surbrillance pour la pièce active
+                        pyxel.rectb(
+                            x * self.cell_size + 1,
+                            y * self.cell_size + 1,
+                            self.cell_size - 2,
+                            self.cell_size - 2,
+                            7  # Couleur de surbrillance
+                        )
+                    else:
+                        # Affichage normal pour les pièces en prévisualisation
+                        pyxel.rect(
+                            x * self.cell_size,
+                            y * self.cell_size,
+                            self.cell_size,
+                            self.cell_size,
+                            self.colors[(self.selected_piece.numero % len(self.colors))-1]
+                        )
                     
                     # Ajouter un contour de surbrillance pour la pièce active
                     pyxel.rectb(
@@ -248,7 +403,37 @@ class KataminoBoard:
                     )
 
         # Afficher les informations de l'interface utilisateur
-        pyxel.text(10, self.ligne * self.cell_size + 5, "Select Piece:", 0)
+        pyxel.text(10, self.ligne * self.cell_size + 5, remove_accents("Select Piece:"), 0)
+        
+        # Réinitialiser la liste des boutons de pièces
+        self.piece_buttons = []
+        
+        for i, piece in enumerate(self.pieces):
+            # Position du bouton pour cette pièce
+            btn_x = 30 + i * 20
+            btn_y = self.ligne * self.cell_size + 30
+            
+            # Stocker les coordonnées du bouton
+            self.piece_buttons.append((btn_x, btn_y))
+            
+            # Dessiner l'icône de la pièce
+            pyxel.blt(btn_x, btn_y, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
+            
+            # Mettre en surbrillance la pièce sélectionnée
+            if i == self.selected_piece_index:
+                pyxel.rectb(
+                    btn_x,
+                    btn_y,
+                    16,  # Taille du cadre
+                    16,  # Taille du cadre
+                    8,  # Couleur du cadre
+                )
+
+        # Afficher "Cliquez pour sélectionner" sous les pièces
+        pyxel.text(10, self.ligne * self.cell_size + 50, remove_accents("Cliquez pour sélectionner"), 0)
+        
+        # Afficher les informations de l'interface utilisateur
+        pyxel.text(10, self.ligne * self.cell_size + 5, remove_accents("Select Piece:"), 0)
         liste_des_coordonnees_des_boutons = []
         for i, piece in enumerate(self.pieces):
             pyxel.blt(30 + i * 20, self.ligne * self.cell_size + 30, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
@@ -263,24 +448,41 @@ class KataminoBoard:
         
         liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 30))
 
-        # Afficher l'alerte si nécessaire
+        # Afficher l'alerte si nécessaire - NOUVEAU STYLE AMÉLIORÉ
         if self.alert_timer > 0:
-            message_x = 10
-            message_y = self.ligne * self.cell_size + 70
-            pyxel.text(message_x, message_y, self.alert_message, 8)
+            # Variables pour le message d'alerte amélioré
+            alert_message = remove_accents(self.alert_message)  # Supprimer les accents du message
+            message_width = len(alert_message) * 4  # Largeur approximative du texte
+            padding = 10  # Espace autour du texte
+            box_width = message_width + padding * 2
+            box_height = 20  # Hauteur fixe pour la boîte
+            
+            # Position centrée pour la boîte d'alerte
+            box_x = (self.cols * self.cell_size - box_width) // 2
+            box_y = self.ligne * self.cell_size // 2  # Centrer verticalement sur le plateau
+            
+            # Dessiner un fond pour le message d'alerte
+            pyxel.rect(box_x, box_y, box_width, box_height, 5)  # Fond bleu
+            pyxel.rectb(box_x, box_y, box_width, box_height, 7)  # Bordure blanche
+            
+            # Dessiner le texte centré dans la boîte
+            text_x = box_x + padding
+            text_y = box_y + (box_height - 8) // 2  # 8 est la hauteur approximative du texte
+            pyxel.text(text_x, text_y, alert_message, 7)  # Texte en blanc
             
         # Afficher les contrôles
         controls_y = self.ligne * self.cell_size + 100
-        pyxel.text(10, controls_y, "Contrôles:", 0)
-        pyxel.text(10, controls_y + 10, "Flèches: Déplacer", 0)
-        pyxel.text(10, controls_y + 20, "R: Rotation, E: Symétrie", 0)
-        pyxel.text(10, controls_y + 30, "Entrée: Placer et passer à la pièce suivante", 0)
-        pyxel.text(10, controls_y + 40, "N: Changer de pièce, ESC: Annuler", 0)
-        pyxel.text(10, controls_y + 50, "F: Mode libre On/Off", 0)
+        pyxel.text(10, controls_y, remove_accents("Contrôles:"), 0)
+        pyxel.text(10, controls_y + 10, remove_accents("Flèches: Déplacer"), 0)
+        pyxel.text(10, controls_y + 20, remove_accents("R: Rotation, E: Symétrie"), 0)
+        pyxel.text(10, controls_y + 30, remove_accents("Entrée: Placer et passer à la pièce suivante"), 0)
+        pyxel.text(10, controls_y + 40, remove_accents("N: Changer de pièce, ESC: Annuler"), 0)
+        pyxel.text(10, controls_y + 50, remove_accents("F: Mode libre On/Off"), 0)
+        pyxel.text(10, controls_y + 60, remove_accents("Clic souris: sélectionner pièce déjà placée"), 0)
         
         # Afficher le mode actuel
-        mode_text = "Mode: " + ("Libre" if self.free_placement else "Réglementé")
-        pyxel.text(10, controls_y + 70, mode_text, 8 if self.free_placement else 3)
+        mode_text = remove_accents("Mode: " + ("Libre" if self.free_placement else "Reglemente"))
+        pyxel.text(10, controls_y + 80, mode_text, 8 if self.free_placement else 3)
 
 
 class Piece:
@@ -346,8 +548,14 @@ class Piece:
             new_x, new_y = x + dx, y + dy
             new_coordinates.append([new_x, new_y])
         
-        # En mode libre, on ignore les collisions
-        if free_mode:
+        # Empêcher le mouvement hors plateau en mode prévisualisation
+        if is_preview and not all(0 <= x < len(board) and 0 <= y < len(board[0]) for x, y in new_coordinates):
+            # Restaurer l'état initial
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau(is_preview, board), False
+        
+        # En mode libre (mais dans les limites du plateau)
+        elif free_mode:
             # Filtrer les coordonnées qui sont hors plateau
             valid_coordinates = []
             for x, y in new_coordinates:
@@ -423,6 +631,16 @@ class Piece:
             return self.place_on_plateau(is_preview, board), False
 
     def symetrie(self, is_preview=False, target_board=None, free_mode=False):
+        # Utiliser le plateau spécifié ou le plateau par défaut
+        board = target_board if target_board is not None else self.plateau
+        
+        # Sauvegarde des coordonnées actuelles
+        old_coordinates = self.actual_coordinates.copy()
+        
+        # Effacer la pièce actuelle du plateau
+        for x, y in self.actual_coordinates:
+            if 0 <= x < len(board) and 0 <= y < len(board[0]):
+                board[x][y] = 0
 
         # Calculer les nouvelles coordonnées pour la symétrie
         max_y = max(y for x, y in self.actual_coordinates)
