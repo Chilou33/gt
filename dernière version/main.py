@@ -523,44 +523,36 @@ class KataminoBoard:
             # Stocker les coordonnées du bouton
             self.piece_buttons.append((btn_x, btn_y))
             
-            # Dessiner l'icône de la pièce
+            # Déterminer si l'icône doit être grisée
+            draw_greyed = piece.numero in self.placed_pieces_numero
+            
+            if draw_greyed:
+                # Sauvegarder les couleurs originales pour les restaurer ensuite si nécessaire
+                # (pyxel.pal() réinitialise à la palette par défaut, donc pas strictement nécessaire ici)
+                # Appliquer le mappage de palette pour griser les couleurs de la pièce (indices 4 à 15 -> 2)
+                for color_index in range(4, 16):
+                     pyxel.pal(color_index, self.gray_color) # Map piece colors to grey
+
+            # Dessiner l'icône de la pièce (avec la palette modifiée si draw_greyed est True)
             pyxel.blt(btn_x, btn_y, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
 
-            # Griser l'icône si la pièce est déjà placée
-            if piece.numero in self.placed_pieces_numero:
-                 # Dessiner un rectangle semi-transparent par-dessus
-                 for row in range(0, 16, 2):
-                     for col in range(0, 16, 2):
-                          pyxel.pset(btn_x + col + (row % 4)//2, btn_y + row, 2) # Draw grey dots
+            if draw_greyed:
+                # Réinitialiser la palette aux couleurs par défaut après avoir dessiné l'icône grisée
+                pyxel.pal() 
 
-            # Mettre en surbrillance la pièce sélectionnée
+            # Mettre en surbrillance la pièce sélectionnée (par-dessus l'icône)
             if i == self.selected_piece_index:
                 pyxel.rectb(
                     btn_x,
                     btn_y,
+                    16,  # Taille du cadre (correspond à 8x8 sprite scaled by 2)
                     16,  # Taille du cadre
-                    16,  # Taille du cadre
-                    8,  # Couleur du cadre (jaune)
+                    8,   # Couleur du cadre (jaune)
                 )
 
         # Afficher "Cliquez pour sélectionner" sous les pièces
         pyxel.text(10, self.ligne * self.cell_size + 50, remove_accents("Cliquez pour sélectionner"), 0)
         
-        # Supprimer la boucle redondante pour dessiner les icônes
-        # pyxel.text(10, self.ligne * self.cell_size + 5, remove_accents("Select Piece:"), 0)
-        # liste_des_coordonnees_des_boutons = [] # Déjà géré par self.piece_buttons
-        # for i, piece in enumerate(self.pieces):
-        #     pyxel.blt(30 + i * 20, self.ligne * self.cell_size + 30, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
-        #     if i == self.selected_piece_index:
-        #         pyxel.rectb(
-        #             30 + i * 20,
-        #             self.ligne * self.cell_size + 30,
-        #             16,  # Taille du cadre
-        #             16,  # Taille du cadre
-        #             8,  # Couleur du cadre
-        #         )
-        # liste_des_coordonnees_des_boutons.append((30 + i * 20, self.ligne * self.cell_size + 30)) # Déjà géré
-
         # Afficher l'alerte si nécessaire - NOUVEAU STYLE AMÉLIORÉ
         if self.alert_timer > 0:
             # Variables pour le message d'alerte amélioré
