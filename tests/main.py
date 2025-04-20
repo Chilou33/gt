@@ -21,22 +21,7 @@ def remove_accents(text):
         return text
 
 class KataminoBoard:
-    def __init__(
-        self,
-        board,
-        cell_size=30,
-        available_pieces=None,
-        already_placed_pieces=None,
-        victory_condition=None,
-        blocked_cells=None
-    ):
-        """
-        board: plateau initial (liste de listes)
-        available_pieces: liste d'objets Piece à placer (optionnel)
-        already_placed_pieces: liste d'objets Piece déjà placés (optionnel)
-        victory_condition: fonction de victoire personnalisée (optionnel)
-        blocked_cells: liste de (y, x) pour cases bloquées (optionnel)
-        """
+    def __init__(self, board, cell_size=30):
         self.board = board
         self.cell_size = cell_size
         self.ligne = len(board)
@@ -52,75 +37,46 @@ class KataminoBoard:
 
         pyxel.load("NouvellePalette.pyxres")
 
-        # --- NOUVEAU : gestion des cases bloquées ---
-        if blocked_cells:
-            for y, x in blocked_cells:
-                if 0 <= y < self.ligne and 0 <= x < self.cols:
-                    self.board[y][x] = -1
-
         # Mode prévisualisation et plateaux - les initialiser AVANT de créer les pièces
-        self.preview_mode = True
-        self.original_board = [row[:] for row in self.board]
-        self.preview_board = [row[:] for row in self.board]
-        self.free_placement = True
+        self.preview_mode = True  # Toujours en mode prévisualisation
+        self.original_board = [row[:] for row in self.board]  # Plateau principal (pièces fixées)
+        self.preview_board = [row[:] for row in self.board]   # Plateau de prévisualisation
+        self.free_placement = True  # Permet de déplacer librement la pièce
 
-        self.confirm_key = pyxel.KEY_RETURN
-
+        # Variables pour gérer le placement des pièces
+        self.confirm_key = pyxel.KEY_RETURN  # Touche Entrée
+        
+        # Système d'alerte amélioré
         self.alert_message = ""
         self.alert_timer = 0
-        self.alert_duration = 30
-
-        self.reselect_mode = False
-        self.reselected_piece = None
-        self.reselected_piece_numero = 0
+        self.alert_duration = 30  # Environ 1 seconde à 30 FPS
+        
+        # Variables pour la sélection de pièces déjà placées
+        self.reselect_mode = False  # Mode de re-sélection des pièces déjà placées
+        self.reselected_piece = None  # Pièce re-sélectionnée (déjà placée)
+        self.reselected_piece_numero = 0  # Numéro de la pièce re-sélectionnée
+        
+        # Ajouter une variable pour stocker les coordonnées des boutons de pièces
         self.piece_buttons = []
-
-        # --- NOUVEAU : gestion des pièces déjà placées ---
+        
+        # Initialiser les pièces APRÈS avoir créé les plateaux
+        self.pieces = create_pieces(self.board)
+        self.selected_piece_index = 0
+        self.selected_piece = self.pieces[self.selected_piece_index]
+        
+        # Ensemble pour suivre les numéros des pièces déjà placées sur le plateau principal
         self.placed_pieces_numero = set()
-        if already_placed_pieces:
-            for piece in already_placed_pieces:
-                for y, x in piece.actual_coordinates:
-                    if 0 <= y < self.ligne and 0 <= x < self.cols:
-                        self.original_board[y][x] = piece.numero
-                        self.placed_pieces_numero.add(piece.numero)
-        else:
-            for r in self.original_board:
-                for cell_value in r:
-                    if cell_value > 0:
-                        self.placed_pieces_numero.add(cell_value)
-
-        # --- NOUVEAU : gestion des pièces disponibles ---
-        if available_pieces is not None:
-            # On ne garde que les pièces qui ne sont pas déjà placées
-            self.pieces = [p for p in available_pieces if p.numero not in self.placed_pieces_numero]
-        else:
-            # On crée toutes les pièces et on retire celles déjà placées
-            all_pieces = create_pieces(self.board)
-            self.pieces = [p for p in all_pieces if p.numero not in self.placed_pieces_numero]
-
-        # Correction : si aucune pièce n'est disponible, éviter l'erreur d'index
-        if self.pieces:
-            self.selected_piece_index = 0
-            self.selected_piece = self.pieces[self.selected_piece_index]
-            self.init_piece_position(self.selected_piece)
-        else:
-            self.selected_piece_index = -1
-            self.selected_piece = None
-
-        # --- NOUVEAU : condition de victoire personnalisée ---
-        if victory_condition is not None:
-            self.victory_condition = victory_condition
-        else:
-            def default_victory(board):
-                for row in board:
-                    for cell in row:
-                        if cell == 0:
-                            return False
-                return True
-            self.victory_condition = default_victory
+        # Remplir l'ensemble initialement si le plateau n'est pas vide
+        for r in self.original_board:
+            for cell_value in r:
+                if cell_value > 0:
+                    self.placed_pieces_numero.add(cell_value)
+                    
+        # Initialiser la position de la première pièce
+        self.init_piece_position(self.selected_piece)
 
         pyxel.run(self.update, self.draw)
-
+        
     def init_piece_position(self, piece):
         # Effacer la pièce du plateau de prévisualisation si elle y était déjà
         for y in range(self.ligne):
@@ -559,7 +515,6 @@ class KataminoBoard:
         # Réinitialiser la liste des boutons de pièces
         self.piece_buttons = []
         
-        # Correction : n'afficher les boutons que si la pièce n'est pas déjà placée
         for i, piece in enumerate(self.pieces):
             # Position du bouton pour cette pièce
             btn_x = 30 + i * 20
@@ -586,7 +541,7 @@ class KataminoBoard:
                 pyxel.pal() 
 
             # Mettre en surbrillance la pièce sélectionnée (par-dessus l'icône)
-            if self.selected_piece is not None and i == self.selected_piece_index:
+            if i == self.selected_piece_index:
                 pyxel.rectb(
                     btn_x,
                     btn_y,
@@ -888,20 +843,4 @@ def plateau_clear():
 plateau = plateau_clear()
 
 # Create and display the Katamino board
-# Exemple de niveau avec quelques cases bloquées et une pièce déjà placée
-blocked_cells = [(0, 0), (4, 11), (2, 5)]
-already_placed_pieces = [
-    Piece(1, [[1, 1], [1], [1], [1]], plateau)
-]
-# Placer la pièce 1 sur le plateau à une position spécifique
-already_placed_pieces[0].actual_coordinates = [[0, 2], [1, 2], [2, 2], [3, 2], [0, 3]]
-for y, x in already_placed_pieces[0].actual_coordinates:
-    plateau[y][x] = 1
-
-katamino = KataminoBoard(
-    plateau,
-    cell_size=30,
-    available_pieces=create_pieces(plateau),
-    already_placed_pieces=already_placed_pieces,
-    blocked_cells=blocked_cells
-)
+KataminoBoard(plateau)
