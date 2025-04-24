@@ -1,23 +1,7 @@
 import pyxel
-import unicodedata
+
 
 def remove_accents(text):
-    """Remplace les caractères accentués par leurs équivalents sans accent."""
-    try:
-        text = unicodedata.normalize('NFKD', text)
-        text = ''.join([c for c in text if not unicodedata.combining(c)])
-        # Remplacements manuels pour certains caractères spécifiques
-        replacements = {
-            'œ': 'oe', 'Œ': 'OE',
-            'æ': 'ae', 'Æ': 'AE',
-            'ç': 'c', 'Ç': 'C',
-            '«': '"', '»': '"'
-        }
-        for char, replacement in replacements.items():
-            text = text.replace(char, replacement)
-        return text
-    except:
-        # En cas d'erreur, renvoyer le texte original
         return text
 
 class KataminoBoard:
@@ -417,19 +401,19 @@ class KataminoBoard:
             result, _ = self.selected_piece.symetrie(True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btnp(pyxel.KEY_LEFT):
+        if pyxel.btn(pyxel.KEY_LEFT):
             result, _ = self.selected_piece.deplacement(-1, 0, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btnp(pyxel.KEY_RIGHT):
+        if pyxel.btn(pyxel.KEY_RIGHT):
             result, _ = self.selected_piece.deplacement(1, 0, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btnp(pyxel.KEY_DOWN):
+        if pyxel.btn(pyxel.KEY_DOWN):
             result, _ = self.selected_piece.deplacement(0, 1, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btnp(pyxel.KEY_UP):
+        if pyxel.btn(pyxel.KEY_UP):
             result, _ = self.selected_piece.deplacement(0, -1, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
@@ -596,7 +580,7 @@ class KataminoBoard:
                 )
 
         # Afficher "Cliquez pour sélectionner" sous les pièces
-        pyxel.text(10, self.ligne * self.cell_size + 50, remove_accents("Cliquez pour sélectionner"), 0)
+        pyxel.text(10, self.ligne * self.cell_size + 50, remove_accents("Cliquez pour selectionner"), 0)
         
         # Afficher l'alerte si nécessaire - NOUVEAU STYLE AMÉLIORÉ
         if self.alert_timer > 0:
@@ -622,13 +606,13 @@ class KataminoBoard:
             
         # Afficher les contrôles
         controls_y = self.ligne * self.cell_size + 100
-        pyxel.text(10, controls_y, remove_accents("Contrôles:"), 0)
-        pyxel.text(10, controls_y + 10, remove_accents("Flèches: Déplacer"), 0)
-        pyxel.text(10, controls_y + 20, remove_accents("R: Rotation, E: Symétrie"), 0)
-        pyxel.text(10, controls_y + 30, remove_accents("Entrée: Placer et passer à la pièce suivante"), 0)
+        pyxel.text(10, controls_y, remove_accents("Controles:"), 0)
+        pyxel.text(10, controls_y + 10, remove_accents("Fleches: Deplacer"), 0)
+        pyxel.text(10, controls_y + 20, remove_accents("R: Rotation, E: Symetrie"), 0)
+        pyxel.text(10, controls_y + 30, remove_accents("Entree: Placer et passer à la pièce suivante"), 0)
         pyxel.text(10, controls_y + 40, remove_accents("N: Changer de pièce, ESC: Annuler"), 0)
         pyxel.text(10, controls_y + 50, remove_accents("F: Mode libre On/Off"), 0)
-        pyxel.text(10, controls_y + 60, remove_accents("Clic souris: sélectionner pièce déjà placée"), 0)
+        pyxel.text(10, controls_y + 60, remove_accents("Clic souris: sélectionner piece deja placee"), 0)
         
         # Afficher le mode actuel
         mode_text = remove_accents("Mode: " + ("Libre" if self.free_placement else "Reglemente"))
