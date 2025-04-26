@@ -1,20 +1,28 @@
 import pyxel
 
 class App:
+    def __init__(self, page_affichée):
+        self.contenu_fenetre = page_affichée
+        #pyxel.init(12 * 30, 5 * 30 + 200, title="PYTHOMINOES")
+        pyxel.run(self.contenu_fenetre.update, self.contenu_fenetre.draw)
+   
+
+class MainMenu:
     def __init__(self):
-        self.app =0
-        pyxel.init(12*30,5*30+200,title="PYTHOMINOES")
-    
+        #pyxel.init(12 * 30, 5 * 30 + 200, title="PYTHOMINOES")
+        self.message = "Bienvenue dans Pythominoes\nAppuyez sur Entree pour jouer"
+        #pyxel.run(self.update, self.draw)
+
     def update(self):
-        if pyxel.btnp(pyxel.KEY_KP_ENTER):
-            KataminoBoard(plateau)
+        if pyxel.btnp(pyxel.KEY_RETURN):  # Start the game when "Enter" is pressed
+            App(KataminoBoard(plateau))
 
     def draw(self):
-        pyxel
+        pyxel.cls(0)
+        pyxel.text(30, (5 * 30 + 200) // 2, self.message, 7)
 
-    
-class Plateau :
-    def __init__(self,taille:int):
+class Plateau:
+    def __init__(self, taille: int):
         self.taille = taille
         self.clear = self.plateau_clear()
 
@@ -34,7 +42,7 @@ class KataminoBoard:
 
         width = 12 * cell_size   # Extra space for piece selection
         height = 5 * cell_size + 200
-        pyxel.init(width, height, title="PYTHOMINOES",fps=13)
+        #pyxel.init(width, height, title="PYTHOMINOES", fps=13)
 
         pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
@@ -44,13 +52,13 @@ class KataminoBoard:
         self.pieces = create_pieces(self.plateau)
         self.selected_piece_index = 0
         self.selected_piece = self.pieces[self.selected_piece_index]
-        self.liste_des_coordonnees_des_boutons= []
+        self.liste_des_coordonnees_des_boutons = []
         # Ajouter un système d'alerte
         self.alert_message = ""
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
 
-        pyxel.run(self.update, self.draw)
+        #pyxel.run(self.update, self.draw)
 
     def update(self):
         pyxel.mouse(True)
@@ -296,5 +304,5 @@ def create_pieces(plateau):
     ]
     return pieces
 
-# Create and display the Katamino board
-KataminoBoard(plateau)
+# Start the game with the main menu
+App(MainMenu())

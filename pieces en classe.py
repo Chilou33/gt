@@ -14,49 +14,80 @@ class Piece:
         return coordinates
 
     def place_on_plateau(self):
+        # Check if the placement is valid before placing
+        if not self.can_place():
+            return self.plateau, False
+            
         for x, y in self.actual_coordinates:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = self.numero
-        return self.plateau
+        return self.plateau, True
+    
+    def can_place(self):
+        # Check if all coordinates are valid and not occupied
+        for x, y in self.actual_coordinates:
+            if not (0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0])):
+                return False
+            if isinstance(self.plateau[x][y], int) and self.plateau[x][y] != 0 and self.plateau[x][y] != self.numero:
+                return False
+        return True
 
     def deplacement(self, dy, dx):
-        # Clear the current position of the piece on the plateau
+        # Sauvegarde de l'état actuel pour restauration en cas d'échec
+        old_coordinates = self.actual_coordinates.copy()
+        
+        # Effacer la pièce actuelle du plateau
         for x, y in self.actual_coordinates:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        # Update the coordinates
+        # Calculer les nouvelles coordonnées
         new_coordinates = []
         for x, y in self.actual_coordinates:
             new_x, new_y = x + dx, y + dy
-            if 0 <= new_x < len(self.plateau) and 0 <= new_y < len(self.plateau[0]):
-                new_coordinates.append([new_x, new_y])
+            new_coordinates.append([new_x, new_y])
+        
         self.actual_coordinates = new_coordinates
-
-        # Place the piece at the new position
-        return self.place_on_plateau()
+        
+        # Vérifier si les nouvelles coordonnées sont valides
+        if not self.can_place():
+            # Restaurer l'état initial si le déplacement est impossible
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau()[0], False
+        
+        # Placer la pièce aux nouvelles coordonnées
+        return self.place_on_plateau()[0], True
 
     def rotate(self):
+        # Save current coordinates in case rotation is not possible
+        old_coordinates = self.actual_coordinates.copy()
+        
         # Clear the current position of the piece on the plateau
         for x, y in self.actual_coordinates:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        # Find the top-left corner of the piece
-        min_x = min(coord[0] for coord in self.actual_coordinates)
-        min_y = min(coord[1] for coord in self.actual_coordinates)
+        # Find the center for rotation
+        if self.numero in [6, 8, 4]:
+            rotation_anchor = self.actual_coordinates[1]  # Use a specific point as anchor
+        else:
+            rotation_anchor = self.actual_coordinates[2]
 
-        # Translate coordinates to the origin
-        translated_coordinates = [[x - min_x, y - min_y] for x, y in self.actual_coordinates]
+        anchor_x, anchor_y = rotation_anchor[0], rotation_anchor[1]
 
         # Apply rotation (90 degrees clockwise)
+        translated_coordinates = [[x - anchor_x, y - anchor_y] for x, y in self.actual_coordinates]
         rotated_coordinates = [[y, -x] for x, y in translated_coordinates]
+        self.actual_coordinates = [[x + anchor_x, y + anchor_y] for x, y in rotated_coordinates]
 
-        # Translate coordinates back to original position
-        self.actual_coordinates = [[x + min_x, y + min_y] for x, y in rotated_coordinates]
-
-        # Place the piece at the new position
-        return self.place_on_plateau()
+        # Check if rotation is valid
+        if not self.can_place():
+            # Restore original position if rotation is not possible
+            self.actual_coordinates = old_coordinates
+            return self.place_on_plateau()[0], False
+            
+        # Place the piece at the rotated position
+        return self.place_on_plateau()[0], True
 
 def create_pieces(plateau):
     piece = [
