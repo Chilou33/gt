@@ -335,4 +335,4 @@ def create_pieces(plateau):
     return pieces
 
 # Start the game with the main menu
-App(KataminoBoard(plateau))
+App(MainMenu())
