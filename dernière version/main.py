@@ -34,10 +34,10 @@ class KataminoBoard:
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
         self.gray_color = 2  # Couleur grisée pour les pièces en mode prévisualisation
 
-        pyxel.load("NouvellePalette.pyxres")
+        pyxel.load("dernière version/NouvellePalette.pyxres")
 
         # --- NOUVEAU : gestion des cases bloquées ---
-        if blocked_cells:
+        if blocked_cells: 
             for y, x in blocked_cells:
                 if 0 <= y < self.ligne and 0 <= x < self.cols:
                     self.board[y][x] = -1
@@ -401,19 +401,19 @@ class KataminoBoard:
             result, _ = self.selected_piece.symetrie(True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btn(pyxel.KEY_LEFT):
+        if pyxel.btnp(pyxel.KEY_LEFT,repeat=10):
             result, _ = self.selected_piece.deplacement(-1, 0, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btn(pyxel.KEY_RIGHT):
+        if pyxel.btnp(pyxel.KEY_RIGHT,repeat=10):
             result, _ = self.selected_piece.deplacement(1, 0, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btn(pyxel.KEY_DOWN):
+        if pyxel.btnp(pyxel.KEY_DOWN,repeat=10):
             result, _ = self.selected_piece.deplacement(0, 1, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
-        if pyxel.btn(pyxel.KEY_UP):
+        if pyxel.btnp(pyxel.KEY_UP,repeat=10):
             result, _ = self.selected_piece.deplacement(0, -1, True, self.preview_board, self.free_placement)
             self.preview_board = result
                 
@@ -882,7 +882,7 @@ already_placed_pieces[0].actual_coordinates = [[0, 2], [1, 2], [2, 2], [3, 2], [
 for y, x in already_placed_pieces[0].actual_coordinates:
     plateau[y][x] = 1
 
-katamino = KataminoBoard(
+KataminoBoard(
     plateau,
     cell_size=30,
     available_pieces=create_pieces(plateau),

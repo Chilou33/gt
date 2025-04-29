@@ -58,7 +58,7 @@ class MainMenu:
                 piece_val = self.val  # Utiliser la valeur par défaut si non spécifiée
             
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
-        
+
     
 class Plateau:
     def __init__(self, taille: int):
@@ -87,7 +87,9 @@ class KataminoBoard:
         self.pieces = create_pieces(self.plateau)
         self.selected_piece_index = 0
         self.selected_piece = self.pieces[self.selected_piece_index]
+        self.pieces_placees = [self.pieces[0]]
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
+        
         # Ajouter un système d'alerte
         self.alert_message = ""
         self.alert_timer = 0
@@ -138,7 +140,8 @@ class KataminoBoard:
             # Changer l'index de la pièce sélectionnée
             self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
             self.selected_piece = self.pieces[self.selected_piece_index]
-        
+        # for piece in self.pieces_placees:
+        #     piece.place_on_plateau()
         # Mettre à jour le timer d'alerte
         if self.alert_timer > 0:
             self.alert_timer -= 1
@@ -195,6 +198,8 @@ class Piece:
         return coordinates
 
     def place_on_plateau(self):
+        # if self.actual_coordinates not in KataminoBoard.pieces_placées :
+        #             KataminoBoard.pieces_placees.append(self.actual_coordinates)
         for x, y in self.actual_coordinates:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = self.numero
@@ -221,6 +226,7 @@ class Piece:
             # Vérifier que toutes les cases cibles sont vides
             if all(self.plateau[new_x][new_y] == 0 for new_x, new_y in new_coordinates):
                 self.actual_coordinates = new_coordinates
+                
                 return self.place_on_plateau(), True
         
         # Si le déplacement est impossible, restaurer l'état initial
