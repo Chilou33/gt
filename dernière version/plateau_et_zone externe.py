@@ -1,5 +1,7 @@
 import pyxel
 
+
+
 class KataminoBoard:
     def __init__(self, board, cell_size=30):
         self.board = board
@@ -7,42 +9,50 @@ class KataminoBoard:
         self.ligne = len(board)
         self.cols = len(board[0]) if self.ligne > 0 else 0
 
-        width = self.cols * cell_size
-        height = self.ligne * cell_size
+        width = self.cols * cell_size   # Extra space for piece selection
+        height = self.ligne * cell_size + 200
         pyxel.init(width, height, title="Katamino Board")
 
-        self.colors = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
+        self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
-        self.piece = Piece(1, [[1, 1], [1], [1], [1]], self.board)
+        pyxel.load("NouvellePalette.pyxres")
+
+        self.pieces = create_pieces(self.board)
+        self.selected_piece_index = 0
+        self.selected_piece = self.pieces[self.selected_piece_index]
 
         pyxel.run(self.update, self.draw)
 
     def update(self):
+        pyxel.mouse(True)
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
         if pyxel.btnp(pyxel.KEY_P):
-            self.board = self.piece.place_on_plateau()
+            self.board = self.selected_piece.place_on_plateau()
         if pyxel.btnp(pyxel.KEY_R):
-            self.board = self.piece.rotate()
+            self.board = self.selected_piece.rotate()
         if pyxel.btnp(pyxel.KEY_E):
-            self.board = self.piece.symetrie()
+            self.board = self.selected_piece.symetrie()
         if pyxel.btnp(pyxel.KEY_LEFT):
-            self.board = self.piece.deplacement(-1, 0)
+            self.board = self.selected_piece.deplacement(-1, 0)
         if pyxel.btnp(pyxel.KEY_RIGHT):
-            self.board = self.piece.deplacement(1, 0)
+            self.board = self.selected_piece.deplacement(1, 0)
         if pyxel.btnp(pyxel.KEY_DOWN):
-            self.board = self.piece.deplacement(0, 1)
+            self.board = self.selected_piece.deplacement(0, 1)
         if pyxel.btnp(pyxel.KEY_UP):
-            self.board = self.piece.deplacement(0, -1)
-        
+            self.board = self.selected_piece.deplacement(0, -1)
+        if pyxel.btnp(pyxel.KEY_N):
+            self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+            self.selected_piece = self.pieces[self.selected_piece_index]
 
     def draw(self):
-        pyxel.cls(7)
+        pyxel.cls(1)
         for y in range(self.ligne):
             for x in range(self.cols):
                 value = self.board[y][x]
                 if value > 0:
-                    color = self.colors[value % len(self.colors)]
+                    color = self.colors[(value % len(self.colors))-1]
                     pyxel.rect(
                         x * self.cell_size,
                         y * self.cell_size,
@@ -56,6 +66,19 @@ class KataminoBoard:
                     self.cell_size,
                     self.cell_size,
                     0
+                )
+
+        # Draw piece selection area
+        pyxel.text(10, self.ligne * self.cell_size + 10, "Select Piece:", 0)
+        for i, piece in enumerate(self.pieces):
+            pyxel.blt(30 + i * 20, self.ligne * self.cell_size + 30, 0, i * 8, 0, 8, 8, 0, 0, 2.0)
+            if i == self.selected_piece_index:
+                pyxel.rectb(
+                    30 + i * 20,
+                    self.ligne * self.cell_size + 10,
+                    10,
+                    10,
+                    0,
                 )
 
 class Piece:
@@ -99,9 +122,9 @@ class Piece:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        if self.numero in [6, 8]:
+        if self.numero in [6, 8,4]:
             self.rotation_anchor = self.actual_coordinates[1]
-        if self.numero in [1, 2, 3, 4, 5, 7, 9, 10, 11, 12]:
+        if self.numero in [1, 2, 3, 5, 7, 9, 10, 11, 12]:
             self.rotation_anchor = self.actual_coordinates[2]
 
         anchor_x = self.rotation_anchor[0]
@@ -121,10 +144,7 @@ class Piece:
             if 0 <= x < len(self.plateau) and 0 <= y < len(self.plateau[0]):
                 self.plateau[x][y] = 0
 
-        # Find the maximum y-coordinate
         max_y = max(y for x, y in self.actual_coordinates)
-
-       
         symetrie_coordinates = [[x, max_y - y] for x, y in self.actual_coordinates]
 
         min_y = min(y for x, y in self.actual_coordinates)
@@ -138,7 +158,7 @@ class Piece:
         return self.place_on_plateau()
 
 def create_pieces(plateau):
-    piece = [
+    pieces = [
         Piece(1, [[1, 1],\
                                 [1], \
                                 [1], \
@@ -192,13 +212,14 @@ def create_pieces(plateau):
                                 [0, 12], \
                                 [0, 12]], plateau)\
     ]
-    return piece
+    return pieces
 
 def plateau_clear():
-    plateau = [[0 for _ in range(18)] for _ in range(11)]
-
+    plateau = [[0 for _ in range(12)] for _ in range(5)]
     return plateau
 
-plateau = [[0 for _ in range(12)] for _ in range(5)]
+# Initialize plateau
+plateau = plateau_clear()
 
+# Create and display the Katamino board
 KataminoBoard(plateau)
