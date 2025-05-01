@@ -1,5 +1,7 @@
 import pyxel
 from random import randint
+import math
+import random
 
 width = 12 * 32
 height = 5 * 32 + 200
@@ -56,7 +58,66 @@ class MainMenu:
                 piece_val = self.val  # Utiliser la valeur par défaut si non spécifiée
             
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
+            
+class Ecran_de_victoire:
+    def __init__(self):
+        self.message = "Victoire!"
+        pyxel.load("tilemap.pyxres")
+        self.pieces_cascade_liste = []  # Liste des pièces en cascade [x, y, image_val, angle_rad, speed]
+        self.val = randint(1, 12) * 16 + 8  # Valeur initiale
+        self.piece_size = 32 # Piece size after scaling (16 * 2.0)
 
+    def ajouter_piece_cascade(self):
+            corner = random.randint(0, 1)
+            speed = random.uniform(1.5, 3.0) # Random speed for variation
+            piece_val = randint(1, 12) * 16 + 8  # Valeur aléatoire pour l'image de la pièce
+
+            if corner == 0:
+                x_position = 0  # Coin inférieur gauche
+                # Angle between 0 and 90 degrees (up-right)
+                angle_rad = random.uniform(0, math.pi / 2)
+            else:
+                x_position = width - self.piece_size # Coin inférieur droit (adjust for piece width)
+                # Angle between 90 and 180 degrees (up-left)
+                angle_rad = random.uniform(math.pi / 2, math.pi)
+
+            y_position = height # Apparaît en bas de l'écran
+            self.pieces_cascade_liste.append([x_position, y_position, piece_val, angle_rad, speed])
+
+    def pieces_deplacement(self):
+        for piece in self.pieces_cascade_liste.copy():  # Utiliser une copie
+            x, y, _, angle, speed = piece
+
+
+            dx = speed * math.cos(angle)
+            dy = -speed * math.sin(angle)
+
+
+            piece[0] += dx
+            piece[1] += dy
+
+            if piece[1] < -self.piece_size:
+                self.pieces_cascade_liste.remove(piece)
+
+    def update(self):
+
+        if pyxel.frame_count % 30 == 0:
+            self.val = randint(1, 12) * 16 + 8
+
+        self.ajouter_piece_cascade()  
+        self.pieces_deplacement()  
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
+
+    def draw(self):
+        pyxel.cls(1) 
+        pyxel.text(width // 2 - len(self.message)*2, height // 2 - 4, self.message, 0)  
+
+
+        for piece in self.pieces_cascade_liste:
+            x, y, piece_val, _, _ = piece 
+            pyxel.blt(x, y, 0, piece_val, 16, 16, 16, 0, scale=2.0)
     
 class Plateau:
     def __init__(self, taille: int):
@@ -96,7 +157,16 @@ class KataminoBoard:
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
 
+
+
         #pyxel.run(self.update, self.draw)
+
+    def verif_victoire(self):
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                if self.plateau[y][x] == 0:
+                    return False  
+        return True 
 
     def update(self):
         pyxel.mouse(True)
@@ -106,6 +176,10 @@ class KataminoBoard:
             pyxel.quit()
         if pyxel.btnp(pyxel.KEY_P,repeat=10):
             self.plateau = self.selected_piece.place_on_plateau()
+
+            if self.verif_victoire():
+                self.alert_message = "Victoire!"
+                self.alert_timer = self.alert_duration
         if pyxel.btnp(pyxel.KEY_R,repeat=10):
             self.plateau, success = self.selected_piece.rotate()
             if not success:
@@ -146,6 +220,7 @@ class KataminoBoard:
         # Mettre à jour le timer d'alerte
         if self.alert_timer > 0:
             self.alert_timer -= 1
+        
 
     def draw(self):
         pyxel.cls(1)
@@ -342,4 +417,4 @@ def create_pieces(plateau):
     return pieces
 
 # Start the game with the main menu
-App(MainMenu())
+App(Ecran_de_victoire())
