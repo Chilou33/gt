@@ -1,9 +1,0 @@
-import pyxel
-pyxel.init(400, 600, title="Phytominoes", fps=30)
-pyxel.load("PiéceL.pyxres")
-def update():
-    pass
-def draw():
-    pyxel.cls(0)
-    pyxel.blt(100,300,0,0,0,16,24)
-pyxel.run(update, draw)
