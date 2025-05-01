@@ -95,7 +95,16 @@ class KataminoBoard:
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
 
+
+
         #pyxel.run(self.update, self.draw)
+
+    def verif_victoire(self):
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                if self.plateau[y][x] == 0:
+                    return False  
+        return True 
 
     def update(self):
         pyxel.mouse(True)
@@ -145,6 +154,7 @@ class KataminoBoard:
         # Mettre à jour le timer d'alerte
         if self.alert_timer > 0:
             self.alert_timer -= 1
+        
 
     def draw(self):
         pyxel.cls(1)
