@@ -7,11 +7,8 @@ pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 
 class App:
     def __init__(self, page_affichée):
-        self.contenu_fenetre = page_affichée
-        
-        pyxel.run(self.contenu_fenetre.update, self.contenu_fenetre.draw)
+        pyxel.run(page_affichée.update, page_affichée.draw)
    
-
 class MainMenu:
     def __init__(self):
         self.message = "Bienvenue dans Pythominoes\nAppuyez sur Entree pour jouer"
@@ -42,6 +39,7 @@ class MainMenu:
             
         self.ajouter_piece_cascade()  # Ajouter des pièces à la cascade
         self.pieces_deplacement()  # Déplacer les pièces
+
         if pyxel.btnp(pyxel.KEY_RETURN):  # Lancer le jeu quand "Entrée" est pressé
             App(KataminoBoard(plateau))
 
@@ -68,17 +66,20 @@ class Plateau:
     def plateau_clear(self):
         plateau = [[0 for _ in range(self.taille)] for _ in range(5)]
         return plateau
+    def changement_de_taille(self):
+        self.taille = 6
 
 taille = 12
 plateau = Plateau(taille).clear 
 
+
+
 class KataminoBoard:
-    def __init__(self, plateau, cell_size=32):
+    def __init__(self, plateau,cell_size=32):
         self.plateau = plateau
         self.cell_size = cell_size
         self.ligne = len(plateau)
         self.cols = len(plateau[0]) if self.ligne > 0 else 0
-
         pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
@@ -174,7 +175,7 @@ class KataminoBoard:
         rect_cos = self.liste_des_coordonnees_des_boutons[self.selected_piece_index]
         pyxel.bltm(32*3, self.ligne * self.cell_size+32, 0, 0, 0,  24*8, 8*8, 0,scale=2.0)
         pyxel.rectb(rect_cos[0],rect_cos[1],32,32,2)
-
+        
         
         # Afficher l'alerte si nécessaire
         if self.alert_timer > 0:
