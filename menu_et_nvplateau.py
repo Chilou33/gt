@@ -416,4 +416,4 @@ def create_pieces(plateau):
     return pieces
 
 # Start the game with the main menu
-App(Ecran_de_victoire())
+App(MainMenu())
