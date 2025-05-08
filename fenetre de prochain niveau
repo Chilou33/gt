@@ -1,5 +1,4 @@
-from tkinter import*
-
+import pyxel
 def gagné(plateau1):
     for lignes in plateau1:
         for cases in lignes:
@@ -7,33 +6,15 @@ def gagné(plateau1):
                 return False
     return True
 
-def fenetre():
-    if gagné == True:
-        mafenetre=Tk()
-        victoire=Label(mafenetre,text='Niveau réussi !',bg='green',font=('Arial',30))
-        victoire.place(x=100,y=50)
-        mafenetre.title(string='prochain niveau')
-        mafenetre.geometry(newGeometry='480x320')
-        boutonProchainNiv = Button(mafenetre,text='Prochain niveau',command=prochainNiv)
-        boutonProchainNiv.place(x=100,y=160)
-        boutonRecommencer = Button(mafenetre,text='Recommencer',command=recommencer)
-        boutonRecommencer.place(x=270,y=160)
-        mafenetre.mainloop()
-    else:
+class gagner:
+    def fenetre():
+        pyxel.init(128, 128, title="Prochain niveau")
+        pass
+    pass
+
         
 
-def prochainNiv():
-    for lignes in plateau1:
-        for cases in plateau1:
-            cases ==0
-    for lignes in plateau1:
-        lignes.append(0)
-    mafenetre.destroy()
 
-def recommencer():
-    for lignes in plateau1:
-        for cases in plateau1:
-            cases ==0
-    mafenetre.destroy()
+gagner()
 
-
+pyxel.init(128, 128, title="Prochain niveau")
