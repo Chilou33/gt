@@ -198,6 +198,8 @@ class KataminoBoard:
         self.Dplateau = [row[:] for row in plateau]
         self.plateau = plateau
 
+        self.etape = len(pieces_selectionnees)
+
         self.cell_size = cell_size
         self.ligne = len(plateau)
         self.cols = len(plateau[0]) if self.ligne > 0 else 0
@@ -283,11 +285,14 @@ class KataminoBoard:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
 
-        if pyxel.btnp(pyxel.KEY_N):       
-            self.plateau,success = self.selected_piece.place_on_plateau()
+        if pyxel.btnp(pyxel.KEY_N):
+            piece_testée = self.selected_piece       
+            success = self.selected_piece.test_placement()
             if success :
                 self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
                 self.selected_piece = self.pieces[self.selected_piece_index]
+                piece_testée.place_on_plateau()
+            else : pass
 
         
         if pyxel.btn(pyxel.KEY_G):
@@ -299,6 +304,7 @@ class KataminoBoard:
 
     def draw(self):
         pyxel.cls(1)
+        pyxel.bltm(3*32,40,0,0,16*8,24*8,10*8,scale=2.0)
         for y in range(self.ligne):
             for x in range(self.cols):
                 value = self.plateau[y][x]
@@ -316,7 +322,14 @@ class KataminoBoard:
                     y * self.cell_size,
                     self.cell_size,
                     self.cell_size,
-                    2
+                    0
+                )
+                pyxel.rectb(
+                    (x * self.cell_size)+1,
+                    (y * self.cell_size)+1,
+                    self.cell_size-2,
+                    self.cell_size-2,
+                    0
                 )
         for y in range(self.ligne):
             for x in range(self.cols):
@@ -378,6 +391,11 @@ class Piece:
                 self.etat_deplacement = True
         return self.Dplateau
     
+    def test_placement(self):
+        if all(self.plateau[x][y] == 0 or self.numero for x, y in self.cos_actuelles):
+            return True
+        else : return False
+
     def place_on_plateau(self):
         if self.etat_deplacement == True:
             if all(self.plateau[new_x][new_y] == 0 for new_x, new_y in self.cos_actuelles):
