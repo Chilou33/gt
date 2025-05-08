@@ -18,7 +18,7 @@ class EcranSuivant:
         self.liste_pieces = liste_pieces
     
     def update(self):
-        if pyxel.btnp(pyxel.KEY_G):
+        if pyxel.btnp(pyxel.KEY_G) or pyxel.btnp:
             App(EcranChoixPieces(self.etape))
             
     def draw(self):
