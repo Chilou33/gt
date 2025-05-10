@@ -199,6 +199,7 @@ class KataminoBoard:
         self.plateau = plateau
 
         self.etape = len(pieces_selectionnees)
+        print(self.etape)
 
         self.cell_size = cell_size
         self.ligne = len(plateau)
@@ -211,7 +212,7 @@ class KataminoBoard:
         self.pieces = create_pieces(self.plateau)
         self.selected_piece_index = 0
         self.selected_piece = self.pieces[self.selected_piece_index]
-        self.pieces_placees = [self.pieces[0]]
+        self.pieces_placees = []
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
         
         # Ajouter un système d'alerte
@@ -285,14 +286,26 @@ class KataminoBoard:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
 
+        
         if pyxel.btnp(pyxel.KEY_N):
-            piece_testée = self.selected_piece       
-            success = self.selected_piece.test_placement()
-            if success :
-                self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
-                self.selected_piece = self.pieces[self.selected_piece_index]
-                piece_testée.place_on_plateau()
-            else : pass
+                if self.selected_piece.etat_deplacement :
+                    if self.selected_piece.test_placement():
+                        self.selected_piece.place_on_plateau()
+                        self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+                        self.selected_piece = self.pieces[self.selected_piece_index]
+                        self.selected_piece.etat_deplacement = True 
+                    else :
+                        self.selected_piece.retirer()
+                        self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+                        self.selected_piece = self.pieces[self.selected_piece_index]
+                        self.selected_piece.etat_deplacement = True 
+
+                else :
+                    self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
+                    self.selected_piece = self.pieces[self.selected_piece_index]
+                    self.selected_piece.etat_deplacement = True 
+                
+
 
         
         if pyxel.btn(pyxel.KEY_G):
@@ -305,6 +318,7 @@ class KataminoBoard:
     def draw(self):
         pyxel.cls(1)
         pyxel.bltm(3*32,40,0,0,16*8,24*8,10*8,scale=2.0)
+        pyxel.bltm(3*32+(self.etape-1)*32,40,1,0,0,16*8,10*8,scale=2.0)
         for y in range(self.ligne):
             for x in range(self.cols):
                 value = self.plateau[y][x]
@@ -337,10 +351,10 @@ class KataminoBoard:
                 if value > 0:
                     color = self.colors[(value % len(self.colors))-1]
                     pyxel.rect(
-                        (x * self.cell_size)+3,
-                        (y * self.cell_size)+3,
-                        self.cell_size-6,
-                        self.cell_size-6,
+                        (x * self.cell_size)+4,
+                        (y * self.cell_size)+4,
+                        self.cell_size-8,
+                        self.cell_size-8,
                         color
                     )
         # Draw piece selection area
@@ -359,15 +373,16 @@ class KataminoBoard:
 
 class Piece:
     def __init__(self, numero, patron, plateau):
+        
         self.numero = numero
         self.patron = patron
         self.plateau = plateau
         # Créer une copie indépendante du plateau
         self.Dplateau = [row[:] for row in plateau]
         self.etat_deplacement = False
-        self.cos_actuelles = self.convert_to_coordinates()
+        self.cos_actuelles = self.cos_de_départ()
 
-    def convert_to_coordinates(self):
+    def cos_de_départ(self):
         coordinates = []
         for i, row in enumerate(self.patron):
             for j, val in enumerate(row):
@@ -392,23 +407,27 @@ class Piece:
         return self.Dplateau
     
     def test_placement(self):
-        if all(self.plateau[x][y] == 0 or self.numero for x, y in self.cos_actuelles):
+        if all( self.plateau[x][y] == 0  for x, y in self.cos_actuelles):
             return True
         else : return False
 
     def place_on_plateau(self):
+        # Check if the placement is valid
+        if not self.test_placement():
+            return self.plateau, False
+        
+        # Now handle the placement based on current state
         if self.etat_deplacement == True:
-            if all(self.plateau[new_x][new_y] == 0 for new_x, new_y in self.cos_actuelles):
-                for x, y in self.cos_actuelles:
-                    self.Dplateau[x][y] = 0
-                    self.plateau[x][y] = self.numero
-                    self.etat_deplacement = False
-            else : return self.plateau, False
-        if self.etat_deplacement == False:
+            for x, y in self.cos_actuelles:
+                self.Dplateau[x][y] = 0
+                self.plateau[x][y] = self.numero
+            self.etat_deplacement = False
+            return self.plateau, True
+        else:  # self.etat_deplacement == False
             for x, y in self.cos_actuelles:
                 self.plateau[x][y] = self.numero
-                self.etat_deplacement = False
-        return self.plateau,True
+            self.etat_deplacement = False
+            return self.plateau, True
 
     def retirer(self):
         if self.etat_deplacement == True:
@@ -417,7 +436,7 @@ class Piece:
         else :
             for x,y in self.cos_actuelles :
                 self.plateau[x][y] = 0
-        self.cos_actuelles = self.convert_to_coordinates()
+        self.etat_deplacement = True
         
     def deplacement(self, dy, dx):
         self.place_on_Dplateau()
@@ -541,4 +560,4 @@ def create_pieces(plateau):
     return pieces
 
 
-App(KataminoBoard(Plateau(12).clear))
+App(MainMenu())
