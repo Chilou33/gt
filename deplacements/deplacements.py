@@ -377,23 +377,23 @@ class KataminoBoard:
         nbr_col = 3
         ecart_bas = 5
 
-        y_start_cmds = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
+        Y_normal = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
 
         x_left = 20
-        pyxel.text(x_left, y_start_cmds, "Fleches: Deplacer", cmd_color)
-        pyxel.text(x_left, y_start_cmds + hauteur_txt, "R: Rotation", cmd_color)
-        pyxel.text(x_left, y_start_cmds + 2 * hauteur_txt, "E: Symetrie", cmd_color)
+        pyxel.text(x_left, Y_normal, "Fleches: Deplacer", cmd_color)
+        pyxel.text(x_left, Y_normal + hauteur_txt, "R: Rotation", cmd_color)
+        pyxel.text(x_left, Y_normal + 2 * hauteur_txt, "E: Symetrie", cmd_color)
 
 
         x_mid = 145 
-        pyxel.text(x_mid, y_start_cmds, "P: Placer Piece", cmd_color)
-        pyxel.text(x_mid, y_start_cmds + hauteur_txt, "A: Retirer Piece", cmd_color)
-        pyxel.text(x_mid, y_start_cmds + 2 * hauteur_txt, "N: Piece Suivante", cmd_color)
+        pyxel.text(x_mid, Y_normal, "P: Placer Piece", cmd_color)
+        pyxel.text(x_mid, Y_normal + hauteur_txt, "A: Retirer Piece", cmd_color)
+        pyxel.text(x_mid, Y_normal + 2 * hauteur_txt, "N: Piece Suivante", cmd_color)
 
         x_right = 270
-        pyxel.text(x_right, y_start_cmds, "G: Choix Pieces", cmd_color)
-        pyxel.text(x_right, y_start_cmds + hauteur_txt, "M: Menu Principal", cmd_color)
-        pyxel.text(x_right, y_start_cmds + 2 * hauteur_txt, "Q: Quitter", cmd_color)
+        pyxel.text(x_right, Y_normal, "G: Choix Pieces", cmd_color)
+        pyxel.text(x_right, Y_normal + hauteur_txt, "M: Menu Principal", cmd_color)
+        pyxel.text(x_right, Y_normal + 2 * hauteur_txt, "Q: Quitter", cmd_color)
 
 class Piece:
     def __init__(self, numero, patron, plateau):
