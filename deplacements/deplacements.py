@@ -129,23 +129,23 @@ class Ecran_de_victoire:
 
     def ajouter_piece_cascade(self):
             corner = random.randint(0, 1)
-            speed = random.uniform(1.5, 3.0) # Random speed for variation
-            piece_val = randint(1, 12) * 16 + 8  # Valeur aléatoire pour l'image de la pièce
+            speed = random.uniform(1.5, 3.0) 
+            piece_val = randint(1, 12) * 16 + 8  
 
             if corner == 0:
-                x_position = 0  # Coin inférieur gauche
-                # Angle between 0 and 90 degrees (up-right)
+                x_position = 0  
+
                 angle_rad = random.uniform(0, math.pi / 2)
             else:
-                x_position = width - self.piece_size # Coin inférieur droit (adjust for piece width)
-                # Angle between 90 and 180 degrees (up-left)
+                x_position = width - self.piece_size 
+
                 angle_rad = random.uniform(math.pi / 2, math.pi)
 
-            y_position = height # Apparaît en bas de l'écran
+            y_position = height 
             self.pieces_cascade_liste.append([x_position, y_position, piece_val, angle_rad, speed])
 
     def pieces_deplacement(self):
-        for piece in self.pieces_cascade_liste.copy():  # Utiliser une copie
+        for piece in self.pieces_cascade_liste.copy():  
             x, y, _, angle, speed = piece
 
 
@@ -371,6 +371,30 @@ class KataminoBoard:
             message_y = self.ligne * self.cell_size + 150
             pyxel.text(message_x, message_y, self.alert_message, 2)
 
+        cmd_color = 0
+
+        hauteur_txt = 12
+        nbr_col = 3
+        ecart_bas = 5
+
+        y_start_cmds = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
+
+        x_left = 20
+        pyxel.text(x_left, y_start_cmds, "Fleches: Deplacer", cmd_color)
+        pyxel.text(x_left, y_start_cmds + hauteur_txt, "R: Rotation", cmd_color)
+        pyxel.text(x_left, y_start_cmds + 2 * hauteur_txt, "E: Symetrie", cmd_color)
+
+
+        x_mid = 145 
+        pyxel.text(x_mid, y_start_cmds, "P: Placer Piece", cmd_color)
+        pyxel.text(x_mid, y_start_cmds + hauteur_txt, "A: Retirer Piece", cmd_color)
+        pyxel.text(x_mid, y_start_cmds + 2 * hauteur_txt, "N: Piece Suivante", cmd_color)
+
+        x_right = 270
+        pyxel.text(x_right, y_start_cmds, "G: Choix Pieces", cmd_color)
+        pyxel.text(x_right, y_start_cmds + hauteur_txt, "M: Menu Principal", cmd_color)
+        pyxel.text(x_right, y_start_cmds + 2 * hauteur_txt, "Q: Quitter", cmd_color)
+
 class Piece:
     def __init__(self, numero, patron, plateau):
         
@@ -409,7 +433,8 @@ class Piece:
     def test_placement(self):
         if all( self.plateau[x][y] == 0  for x, y in self.cos_actuelles):
             return True
-        else : return False
+        else:
+            return False
 
     def place_on_plateau(self):
         # Check if the placement is valid
@@ -417,20 +442,20 @@ class Piece:
             return self.plateau, False
         
         # Now handle the placement based on current state
-        if self.etat_deplacement == True:
+        if self.etat_deplacement:
             for x, y in self.cos_actuelles:
                 self.Dplateau[x][y] = 0
                 self.plateau[x][y] = self.numero
             self.etat_deplacement = False
             return self.plateau, True
-        else:  # self.etat_deplacement == False
+        else:  # not self.etat_deplacement
             for x, y in self.cos_actuelles:
                 self.plateau[x][y] = self.numero
             self.etat_deplacement = False
             return self.plateau, True
 
     def retirer(self):
-        if self.etat_deplacement == True:
+        if self.etat_deplacement:
             for x,y in self.cos_actuelles :
                 self.Dplateau[x][y] = 0
         else :
