@@ -436,7 +436,7 @@ class Plateau_de_jeu:
         Y_normal = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
 
         x_left = 20
-        pyxel.text(x_left, Y_normal, "Fleches: Deplacer", cmd_color)
+        pyxel.text(x_left, Y_normal, "C: Effacer le plateau", cmd_color)
         pyxel.text(x_left, Y_normal + hauteur_txt, "R: Rotation", cmd_color)
         pyxel.text(x_left, Y_normal + 2 * hauteur_txt, "E: Symetrie", cmd_color)
 
