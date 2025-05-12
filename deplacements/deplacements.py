@@ -1,7 +1,6 @@
 import pyxel
-from random import randint
 import math
-import random
+from random import randint
 
 width = 12 * 32
 height = 5 * 32 + 200
@@ -107,7 +106,8 @@ class EcranChoixPieces:
         pyxel.cls(0)
         if self.etape==0:
             pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S",1,)
-        else:  pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
+        else:  
+            pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
         pyxel.bltm(3*32,4*32,0,0,8*8,12*16,16,0,scale=2)
         for i in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
             pyxel.rect(i*32,4*32-8,32,32,0)
@@ -475,11 +475,11 @@ class Piece:
             for j in range(len(self.Dplateau[0])):
                 self.Dplateau[i][j] = 0
 
-        if self.etat_deplacement == True:
+        if self.etat_deplacement:
             for x, y in self.cos_actuelles:
                 self.Dplateau[x][y] = self.numero
 
-        if self.etat_deplacement == False:
+        if not self.etat_deplacement:
             for x, y in self.cos_actuelles:
                 self.plateau[x][y] = 0
                 self.Dplateau[x][y] = self.numero
