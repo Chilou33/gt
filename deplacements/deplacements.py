@@ -210,12 +210,12 @@ class Plateau_de_jeu:
         pyxel.load("ressources.pyxres")
 
         self.pieces = create_pieces(self.plateau)
-        self.pieces_jouables = [self.pieces[piece] for piece in pieces_selectionnees]
+        self.pieces_jouables = [[self.pieces[piece],False,False] for piece in pieces_selectionnees]
         self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
         self.index_piece_selectionnee = 0
-        self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee]
-        self.pieces_deja_placees = []
-        self.pieces_jouees = []
+        self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+        self.piece_deja_placee = self.pieces_jouables[self.index_piece_selectionnee][1]
+        self.piece_jouee = self.pieces_jouables[self.index_piece_selectionnee][2]
         
 
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
@@ -236,44 +236,38 @@ class Plateau_de_jeu:
         pyxel.mouse(True)
 
         if pyxel.btnp(pyxel.KEY_M):
-            self.pieces_deja_placees = []
-            self.pieces_jouees = []
             for piece in self.pieces_jouables :
-                piece.retirer()
-                piece.cos_de_départ()
-            self.pieces_deja_placees = []
-            self.pieces_jouees = []
+                piece[1] = False
+                piece[2] = False
+                piece[0].retirer()
+                piece[0].cos_de_départ()
             global pieces_selectionnees
             pieces_selectionnees = []
             App(MainMenu())
         
         if pyxel.btn(pyxel.KEY_C):
-            self.pieces_deja_placees = []
-            self.pieces_jouees = []
             for piece in self.pieces_jouables :
-                piece.retirer()
-                piece.cos_de_départ()
+                piece[1] = False
+                piece[2] = False
+                piece[0].retirer()
+                piece[0].cos_de_départ()
 
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
         if pyxel.btnp(pyxel.KEY_A):
             self.piece_selectionnee.retirer()
-            if self.index_piece_selectionnee in self.pieces_deja_placees : 
-                self.pieces_deja_placees.remove(self.index_piece_selectionnee)
-            while self.index_piece_selectionnee in self.pieces_jouees :
-                self.pieces_jouees.remove(self.index_piece_selectionnee)
+            self.pieces_jouables[self.index_piece_selectionnee][1] = False
+            self.pieces_jouables[self.index_piece_selectionnee][2] = False
 
         if pyxel.btnp(pyxel.KEY_P,repeat=10):
             self.plateau, success = self.piece_selectionnee.place_on_plateau()
-            if self.index_piece_selectionnee not in self.pieces_deja_placees :  
-                self.pieces_deja_placees.append(self.index_piece_selectionnee)
             if not success :
                 self.alert_message = "Placement impossible!"
                 self.alert_timer = self.alert_duration
-            else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
-
+            else :  
+                self.pieces_jouables[self.index_piece_selectionnee][1] = True
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_R,repeat=10):
             self.Dplateau, success = self.piece_selectionnee.rotate()
@@ -281,7 +275,7 @@ class Plateau_de_jeu:
                 self.alert_message = "Rotation impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_E,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.symetrie()
@@ -289,7 +283,7 @@ class Plateau_de_jeu:
                 self.alert_message = "Symetrie impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_LEFT,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(-1, 0)
@@ -297,7 +291,7 @@ class Plateau_de_jeu:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(1, 0)
@@ -305,7 +299,7 @@ class Plateau_de_jeu:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_DOWN,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(0, 1)
@@ -313,7 +307,7 @@ class Plateau_de_jeu:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
         if pyxel.btnp(pyxel.KEY_UP,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(0, -1)
@@ -321,41 +315,41 @@ class Plateau_de_jeu:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
             else :
-                self.pieces_jouees.append(self.index_piece_selectionnee)
-        
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True     
         
         if pyxel.btnp(pyxel.KEY_N):
-                print(self.pieces_deja_placees)
-                if self.piece_selectionnee.etat_deplacement :
-                    if self.piece_selectionnee.test_placement() :
-                        if self.index_piece_selectionnee in self.pieces_jouees :
-                            self.piece_selectionnee.place_on_plateau()
-                            if self.index_piece_selectionnee not in self.pieces_deja_placees :
-                                self.pieces_deja_placees.append(self.index_piece_selectionnee)
-                        self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
-                        self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee]
-                        if self.index_piece_selectionnee in self.pieces_deja_placees :
-                            self.piece_selectionnee.etat_deplacement = False
-                        else :
-                            self.piece_selectionnee.etat_deplacement = True
-                    else :
-                        self.piece_selectionnee.retirer()
-                        if self.index_piece_selectionnee in self.pieces_deja_placees :
-                                self.pieces_deja_placees.remove(self.index_piece_selectionnee)
-                        self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
-                        self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee]
-                        if self.index_piece_selectionnee in self.pieces_deja_placees :
-                            self.piece_selectionnee.etat_deplacement = False
-                        else :
-                            self.piece_selectionnee.etat_deplacement = True
-                else :
+            if self.piece_selectionnee.etat_deplacement:
+                if self.piece_selectionnee.test_placement():
+                    if self.pieces_jouables[self.index_piece_selectionnee][2]:
+                        self.piece_selectionnee.place_on_plateau()
+                        self.pieces_jouables[self.index_piece_selectionnee][1] = True  
                     self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
-                    self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee]
-                    if self.index_piece_selectionnee in self.pieces_deja_placees :
+                    self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+                    
+                    if self.pieces_jouables[self.index_piece_selectionnee][1]:
                         self.piece_selectionnee.etat_deplacement = False
-                    else :
+                    else:
                         self.piece_selectionnee.etat_deplacement = True
-        
+                else:
+                    self.piece_selectionnee.retirer()
+                    self.pieces_jouables[self.index_piece_selectionnee][1] = False  
+                    
+                    self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
+                    self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+                    
+                    if self.pieces_jouables[self.index_piece_selectionnee][1]:
+                        self.piece_selectionnee.etat_deplacement = False
+                    else:
+                        self.piece_selectionnee.etat_deplacement = True
+            else:
+                self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
+                self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+                
+                if self.pieces_jouables[self.index_piece_selectionnee][1]:
+                    self.piece_selectionnee.etat_deplacement = False
+                else:
+                    self.piece_selectionnee.etat_deplacement = True
+
         if self.verif_victoire():
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
