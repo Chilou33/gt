@@ -215,8 +215,7 @@ class Plateau_de_jeu:
         self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
         self.index_piece_selectionnee = 0
         self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
-        self.piece_deja_placee = self.pieces_jouables[self.index_piece_selectionnee][1]
-        self.piece_jouee = self.pieces_jouables[self.index_piece_selectionnee][2]
+       
         
 
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
