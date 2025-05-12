@@ -1,6 +1,7 @@
 import pyxel
 import math
 from random import randint
+import random
 
 width = 12 * 32
 height = 5 * 32 + 200
