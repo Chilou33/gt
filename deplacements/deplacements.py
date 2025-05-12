@@ -5,7 +5,7 @@ import random
 
 width = 12 * 32
 height = 5 * 32 + 200
-pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
+pyxel.init(width,height,title="PYTHOMINOES",display_scale=1,fps=30)
 
 class App:
     def __init__(self, page_affichée):
@@ -101,7 +101,7 @@ class EcranChoixPieces:
                 # Mise à jour des variables globales
                 global pieces_selectionnees
                 pieces_selectionnees = self.liste_pieces_deja_choisies + self.liste_piece_choisies
-                App(KataminoBoard(Plateau(len(pieces_selectionnees)).clear))
+                App(Plateau_de_jeu(Plateau(len(pieces_selectionnees)).clear))
 
     def draw(self):
         pyxel.cls(0)
@@ -193,7 +193,7 @@ class Plateau:
 taille = 12
 plateau = Plateau(taille).clear 
 
-class KataminoBoard:
+class Plateau_de_jeu:
     def __init__(self, plateau, cell_size=32):
         self.Dplateau = [row[:] for row in plateau]
         self.plateau = plateau
@@ -236,7 +236,23 @@ class KataminoBoard:
         pyxel.mouse(True)
 
         if pyxel.btnp(pyxel.KEY_M):
+            self.pieces_deja_placees = []
+            self.pieces_jouees = []
+            for piece in self.pieces_jouables :
+                piece.retirer()
+                piece.cos_de_départ()
+            self.pieces_deja_placees = []
+            self.pieces_jouees = []
+            global pieces_selectionnees
+            pieces_selectionnees = []
             App(MainMenu())
+        
+        if pyxel.btn(pyxel.KEY_C):
+            self.pieces_deja_placees = []
+            self.pieces_jouees = []
+            for piece in self.pieces_jouables :
+                piece.retirer()
+                piece.cos_de_départ()
 
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
@@ -245,10 +261,12 @@ class KataminoBoard:
             self.piece_selectionnee.retirer()
             if self.index_piece_selectionnee in self.pieces_deja_placees : 
                 self.pieces_deja_placees.remove(self.index_piece_selectionnee)
+            while self.index_piece_selectionnee in self.pieces_jouees :
+                self.pieces_jouees.remove(self.index_piece_selectionnee)
 
         if pyxel.btnp(pyxel.KEY_P,repeat=10):
             self.plateau, success = self.piece_selectionnee.place_on_plateau()
-            if self.index_piece_selectionnee not in self.pieces_deja_placees :
+            if self.index_piece_selectionnee not in self.pieces_deja_placees :  
                 self.pieces_deja_placees.append(self.index_piece_selectionnee)
             if not success :
                 self.alert_message = "Placement impossible!"
@@ -304,7 +322,7 @@ class KataminoBoard:
                 self.alert_timer = self.alert_duration
             else :
                 self.pieces_jouees.append(self.index_piece_selectionnee)
-
+        
         
         if pyxel.btnp(pyxel.KEY_N):
                 print(self.pieces_deja_placees)
