@@ -1,6 +1,6 @@
 import pyxel
-from random import randint
 import math
+from random import randint
 import random
 
 width = 12 * 32
@@ -107,7 +107,8 @@ class EcranChoixPieces:
         pyxel.cls(0)
         if self.etape==0:
             pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S",1,)
-        else:  pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
+        else:  
+            pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
         pyxel.bltm(3*32,4*32,0,0,8*8,12*16,16,0,scale=2)
         for i in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
             pyxel.rect(i*32,4*32-8,32,32,0)
@@ -430,7 +431,7 @@ class Plateau_de_jeu:
         Y_normal = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
 
         x_left = 20
-        pyxel.text(x_left, Y_normal, "Fleches: Deplacer", cmd_color)
+        pyxel.text(x_left, Y_normal, "C: Effacer le plateau", cmd_color)
         pyxel.text(x_left, Y_normal + hauteur_txt, "R: Rotation", cmd_color)
         pyxel.text(x_left, Y_normal + 2 * hauteur_txt, "E: Symetrie", cmd_color)
 
@@ -469,11 +470,11 @@ class Piece:
             for j in range(len(self.Dplateau[0])):
                 self.Dplateau[i][j] = 0
 
-        if self.etat_deplacement == True:
+        if self.etat_deplacement:
             for x, y in self.cos_actuelles:
                 self.Dplateau[x][y] = self.numero
 
-        if self.etat_deplacement == False:
+        if not self.etat_deplacement:
             for x, y in self.cos_actuelles:
                 self.plateau[x][y] = 0
                 self.Dplateau[x][y] = self.numero
