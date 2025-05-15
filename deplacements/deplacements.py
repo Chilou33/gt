@@ -60,6 +60,19 @@ class MainMenu:
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
 
 pieces_selectionnees = []
+grand_chelem =[[2,3,7,9,8,4,5,10,9,1,7],
+        [2,3,6,11,8,4,5,10,9,1,7],
+        [2,4,6,7,8,1,3,9,11,5,12],
+        [3,4,6,7,8,1,5,2,11,10,12],
+        [3,6,7,9,10,2,12,11,4,1,5],
+        [2,3,5,6,4,9,11,10,8,12,1],
+        [2,3,5,7,8,1,9,10,12,4,11],
+        [2,3,6,10,11,8,9,12,4,1,7],
+        [2,3,6,8,5,11,9,7,12,10,1],
+        [2,4,5,8,7,10,6,1,12,9,11],
+        [3,4,5,10,9,1,6,11,8,12,7],
+        [2,6,7,9,11,3,8,4,5,10,12]]
+
 
 class EcranChoixPieces:
     def __init__(self):
@@ -116,7 +129,7 @@ class EcranChoixPieces:
         pyxel.text(3*32,5*32,"Pieces Selectionnees :",1)
         decalage = 0
         for image_piece in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
-            pyxel.blt(8+decalage,6*32,0,24+image_piece*16,16,16,16,0,scale=2.0)
+            pyxel.bltm(8+decalage,6*32,0,image_piece*16,8*8,16,16,0,scale=2.0)
             decalage+=32
         pyxel.text(3*32,32*5+180,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",1)
 
@@ -149,10 +162,8 @@ class Ecran_de_victoire:
         for piece in self.pieces_cascade_liste.copy():  
             x, y, _, angle, speed = piece
 
-
             dx = speed * math.cos(angle)
             dy = -speed * math.sin(angle)
-
 
             piece[0] += dx
             piece[1] += dy
@@ -161,7 +172,6 @@ class Ecran_de_victoire:
                 self.pieces_cascade_liste.remove(piece)
 
     def update(self):
-
         if pyxel.frame_count % 30 == 0:
             self.val = randint(1, 12) * 16 + 8
 
@@ -215,15 +225,12 @@ class Plateau_de_jeu:
         self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
         self.index_piece_selectionnee = 0
         self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
-       
-        
 
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
         
-        # Ajouter un système d'alerte
         self.alert_message = ""
         self.alert_timer = 0
-        self.alert_duration = 30  # Environ 1 seconde à 30 FPS
+        self.alert_duration = 50  
 
     def verif_victoire(self):
         for y in range(self.ligne):
@@ -379,7 +386,7 @@ class Plateau_de_jeu:
                         color
                     )
                 pyxel.rectb(
-                    x * self.cell_size,
+             w       x * self.cell_size,
                     y * self.cell_size,
                     self.cell_size,
                     self.cell_size,
@@ -578,58 +585,58 @@ class Piece:
 
 def create_pieces(plateau):
     pieces = [
-        Piece(1, [[1, 1],\
+        Piece(1, [[1], \
+                                [1], \
                                 [1], \
                                 [1], \
                                 [1]], plateau),\
                                 \
-        Piece(2, [[0, 2],\
-                                [2, 2, 2], \
-                                [0, 2]], plateau),\
+        Piece(2, [[2, 2],\
+                                [2], \
+                                [2], \
+                                [2]], plateau),\
                                 \
-        Piece(3, [[3],\
-                                [3, 3, 3], \
-                                [0, 3]], plateau),\
+        Piece(3, [[3], \
+                                [3, 3], \
+                                [3], \
+                                [3]], plateau),\
                                 \
-        Piece(4, [[4], \
+        Piece(4,[ [4], \
                                 [4, 4], \
-                                [4, 4]], plateau),\
+                                [0, 4], \
+                                [0, 4]], plateau),\
                                 \
         Piece(5, [[5], \
                                 [5], \
                                 [5, 5, 5]], plateau),\
                                 \
-        Piece(6, [[6, 6, 6], \
-                                [0, 6], \
-                                [0, 6]], plateau),\
+        Piece(6, [[6], \
+                                [6, 6], \
+                                [6, 6]], plateau),\
                                 \
-        Piece(7, [[7], \
-                                [7, 7], \
-                                [0, 7, 7]], plateau),\
+        Piece(7,[ [7, 7], \
+                                [0, 7], \
+                                [7, 7]], plateau),\
                                 \
-        Piece(8, [[8], \
-                                [8, 8], \
-                                [8], \
-                                [8]], plateau),\
+        Piece(8,[ [8, 8], \
+                                [0, 8], \
+                                [0, 8, 8]], plateau),\
                                 \
-        Piece(9, [[9], \
-                                [9], \
-                                [9], \
-                                [9], \
-                                [9]], plateau),\
+        Piece(9, [[9],\
+                                [9, 9, 9], \
+                                [0, 9]], plateau),\
                                 \
-        Piece(10,[[10,10], \
-                                [0, 10], \
-                                [0, 10, 10]], plateau),\
+        Piece(10, [[10, 10, 10], \
+                                  [0, 10], \
+                                  [0, 10]], plateau),\
                                 \
-        Piece(11,[[11, 11], \
-                                [0, 11], \
-                                [11, 11]], plateau),\
+        Piece(11, [[11], \
+                                 [11, 11], \
+                                  [0, 11, 11]], plateau),\
                                 \
-        Piece(12,[[12], \
-                                [12,12], \
-                                [0, 12], \
-                                [0, 12]], plateau)\
+        Piece(12, [[0, 12],\
+                                [12, 12, 12], \
+                                 [0, 12]], plateau)\
     ]
     return pieces
 
