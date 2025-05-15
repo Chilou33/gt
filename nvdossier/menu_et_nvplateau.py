@@ -1,5 +1,7 @@
 import pyxel
 from random import randint
+import math
+import random
 
 width = 12 * 32
 height = 5 * 32 + 200
@@ -7,11 +9,8 @@ pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 
 class App:
     def __init__(self, page_affichée):
-        self.contenu_fenetre = page_affichée
-        
-        pyxel.run(self.contenu_fenetre.update, self.contenu_fenetre.draw)
+        pyxel.run(page_affichée.update, page_affichée.draw)
    
-
 class MainMenu:
     def __init__(self):
         self.message = "Bienvenue dans Pythominoes\nAppuyez sur Entree pour jouer"
@@ -42,8 +41,9 @@ class MainMenu:
             
         self.ajouter_piece_cascade()  # Ajouter des pièces à la cascade
         self.pieces_deplacement()  # Déplacer les pièces
+
         if pyxel.btnp(pyxel.KEY_RETURN):  # Lancer le jeu quand "Entrée" est pressé
-            App(KataminoBoard(plateau))
+            App(EcranChoixPieces())
 
     def draw(self):
         """Dessine le menu principal."""
@@ -59,29 +59,149 @@ class MainMenu:
             
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
 
+pieces_selectionnees = []
+
+class EcranChoixPieces:
+    def __init__(self):
+        global pieces_selectionnees
+        self.liste_pieces_deja_choisies = pieces_selectionnees
+        self.liste_piece_choisies = []
+        self.position_curseur = 0
+        pyxel.load("tilemap.pyxres")
+        self.etape =len(pieces_selectionnees)
+
+    def update(self):
+        if pyxel.btnp(pyxel.KEY_RIGHT,repeat=10):
+            if self.position_curseur == 11:
+                self.position_curseur = 0
+            else: 
+                self.position_curseur += 1
+        if pyxel.btnp(pyxel.KEY_LEFT,repeat=10):
+            if self.position_curseur == 0: 
+                self.position_curseur = 11
+            else: 
+                self.position_curseur -=1
+                
+        if pyxel.btnp(pyxel.KEY_S):  # Changé à btnp pour éviter répétitions
+            if self.etape==0:
+                if self.position_curseur not in self.liste_piece_choisies:
+                    if len(self.liste_piece_choisies) < 4:
+                        self.liste_piece_choisies.append(self.position_curseur)
+            else:
+                if self.position_curseur not in self.liste_piece_choisies:
+                    if len(self.liste_piece_choisies) < 1:
+                        self.liste_piece_choisies.append(self.position_curseur)   
+        
+        if pyxel.btnp(pyxel.KEY_E): 
+            self.liste_piece_choisies = []
+            
+        if pyxel.btnp(pyxel.KEY_RETURN):
+            if (self.etape == 0 and len(self.liste_piece_choisies) == 4) or \
+               (self.etape > 0 and len(self.liste_piece_choisies) == 1):
+                # Mise à jour des variables globales
+                global pieces_selectionnees
+                pieces_selectionnees = self.liste_pieces_deja_choisies + self.liste_piece_choisies
+                App(KataminoBoard(Plateau(len(pieces_selectionnees)).clear))
+
+    def draw(self):
+        pyxel.cls(0)
+        if self.etape==0:
+            pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S",1,)
+        else:  pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
+        pyxel.bltm(3*32,4*32,0,0,8*8,12*16,16,0,scale=2)
+        for i in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
+            pyxel.rect(i*32,4*32-8,32,32,0)
+        pyxel.rectb(self.position_curseur*32,4*32-8,32,32,1)
+        pyxel.text(3*32,5*32,"Pieces Selectionnees :",1)
+        decalage = 0
+        for image_piece in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
+            pyxel.blt(8+decalage,6*32,0,24+image_piece*16,16,16,16,0,scale=2.0)
+            decalage+=32
+        pyxel.text(3*32,32*5+180,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",1)
+
+class Ecran_de_victoire:
+    def __init__(self):
+        self.message = "Victoire!"
+        pyxel.load("tilemap.pyxres")
+        self.pieces_cascade_liste = []  # Liste des pièces en cascade [x, y, image_val, angle_rad, speed]
+        self.val = randint(1, 12) * 16 + 8  # Valeur initiale
+        self.piece_size = 32 # Piece size after scaling (16 * 2.0)
+
+    def ajouter_piece_cascade(self):
+            corner = random.randint(0, 1)
+            speed = random.uniform(1.5, 3.0) # Random speed for variation
+            piece_val = randint(1, 12) * 16 + 8  # Valeur aléatoire pour l'image de la pièce
+
+            if corner == 0:
+                x_position = 0  # Coin inférieur gauche
+                # Angle between 0 and 90 degrees (up-right)
+                angle_rad = random.uniform(0, math.pi / 2)
+            else:
+                x_position = width - self.piece_size # Coin inférieur droit (adjust for piece width)
+                # Angle between 90 and 180 degrees (up-left)
+                angle_rad = random.uniform(math.pi / 2, math.pi)
+
+            y_position = height # Apparaît en bas de l'écran
+            self.pieces_cascade_liste.append([x_position, y_position, piece_val, angle_rad, speed])
+
+    def pieces_deplacement(self):
+        for piece in self.pieces_cascade_liste.copy():  # Utiliser une copie
+            x, y, _, angle, speed = piece
+
+
+            dx = speed * math.cos(angle)
+            dy = -speed * math.sin(angle)
+
+
+            piece[0] += dx
+            piece[1] += dy
+
+            if piece[1] < -self.piece_size:
+                self.pieces_cascade_liste.remove(piece)
+
+    def update(self):
+
+        if pyxel.frame_count % 30 == 0:
+            self.val = randint(1, 12) * 16 + 8
+
+        self.ajouter_piece_cascade()  
+        self.pieces_deplacement()  
+        if pyxel.btn(pyxel.KEY_RETURN):
+            App(EcranChoixPieces())
+        if pyxel.btnp(pyxel.KEY_Q):
+            pyxel.quit()
+
+
+    def draw(self):
+        pyxel.cls(1) 
+        pyxel.text(width // 2 - len(self.message)*2, height // 2 - 4, self.message, 0)  
+
+
+        for piece in self.pieces_cascade_liste:
+            x, y, piece_val, _, _ = piece 
+            pyxel.blt(x, y, 0, piece_val, 16, 16, 16, 0, scale=2.0)
     
 class Plateau:
-    def __init__(self, taille: int):
+    def __init__(self,taille: int):
         self.taille = taille
         self.clear = self.plateau_clear()
 
     def plateau_clear(self):
         plateau = [[0 for _ in range(self.taille)] for _ in range(5)]
         return plateau
-
+    
 taille = 12
 plateau = Plateau(taille).clear 
 
 class KataminoBoard:
-    def __init__(self, plateau, cell_size=32):
+    def __init__(self, plateau,cell_size=32):
         self.plateau = plateau
         self.cell_size = cell_size
         self.ligne = len(plateau)
         self.cols = len(plateau[0]) if self.ligne > 0 else 0
-
         pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-
+    
         pyxel.load("tilemap.pyxres")
 
         self.pieces = create_pieces(self.plateau)
@@ -95,56 +215,79 @@ class KataminoBoard:
         self.alert_timer = 0
         self.alert_duration = 30  # Environ 1 seconde à 30 FPS
 
-        #pyxel.run(self.update, self.draw)
+    def verif_victoire(self):
+        for y in range(self.ligne):
+            for x in range(self.cols):
+                if self.plateau[y][x] == 0:
+                    return False  
+        return True 
 
     def update(self):
         pyxel.mouse(True)
+
         if pyxel.btnp(pyxel.KEY_M):
             App(MainMenu())
+
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
+
         if pyxel.btnp(pyxel.KEY_P,repeat=10):
             self.plateau = self.selected_piece.place_on_plateau()
+
+        if self.verif_victoire():
+            self.alert_message = "Victoire!"
+            self.alert_timer = self.alert_duration
+            App(Ecran_de_victoire())
+
         if pyxel.btnp(pyxel.KEY_R,repeat=10):
             self.plateau, success = self.selected_piece.rotate()
             if not success:
                 self.alert_message = "Rotation impossible!"
                 self.alert_timer = self.alert_duration
+
         if pyxel.btnp(pyxel.KEY_E,repeat=8):
             self.plateau, success = self.selected_piece.symetrie()
             if not success:
                 self.alert_message = "Symetrie impossible!"
                 self.alert_timer = self.alert_duration
+
         if pyxel.btnp(pyxel.KEY_LEFT,repeat=8):
             self.plateau, success = self.selected_piece.deplacement(-1, 0)
             if not success:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
+
         if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8):
             self.plateau, success = self.selected_piece.deplacement(1, 0)
             if not success:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
+
         if pyxel.btnp(pyxel.KEY_DOWN,repeat=8):
             self.plateau, success = self.selected_piece.deplacement(0, 1)
             if not success:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
+
         if pyxel.btnp(pyxel.KEY_UP,repeat=8):
             self.plateau, success = self.selected_piece.deplacement(0, -1)
             if not success:
                 self.alert_message = "Deplacement impossible!"
                 self.alert_timer = self.alert_duration
-        if pyxel.btnp(pyxel.KEY_N):
-                    
+
+        if pyxel.btnp(pyxel.KEY_N):       
             # Changer l'index de la pièce sélectionnée
             self.selected_piece_index = (self.selected_piece_index + 1) % len(self.pieces)
             self.selected_piece = self.pieces[self.selected_piece_index]
+        
+        if pyxel.btn(pyxel.KEY_G):
+            App(EcranChoixPieces())
         # for piece in self.pieces_placees:
         #     piece.place_on_plateau()
         # Mettre à jour le timer d'alerte
         if self.alert_timer > 0:
             self.alert_timer -= 1
+        
 
     def draw(self):
         pyxel.cls(1)
@@ -174,7 +317,7 @@ class KataminoBoard:
         rect_cos = self.liste_des_coordonnees_des_boutons[self.selected_piece_index]
         pyxel.bltm(32*3, self.ligne * self.cell_size+32, 0, 0, 0,  24*8, 8*8, 0,scale=2.0)
         pyxel.rectb(rect_cos[0],rect_cos[1],32,32,2)
-
+        
         
         # Afficher l'alerte si nécessaire
         if self.alert_timer > 0:
