@@ -1,0 +1,4 @@
+import pyxel
+from random import randint
+
+class Parametre:

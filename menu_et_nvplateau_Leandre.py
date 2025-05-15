@@ -1,11 +1,8 @@
 import pyxel
-min_size = 4  
-max_size = 12  
-taille = 12  
-width = 12 * 32
-height = 5*32+200
 from random import randint
 
+width = 12 * 32
+height = 5 * 32 + 200
 pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30,quit_key=pyxel.KEY_Q)
 
 class App:
@@ -75,6 +72,7 @@ class Plateau:
         plateau = [[0 for _ in range(self.taille)] for _ in range(5)]
         return plateau
 
+taille = 12
 plateau = Plateau(taille).clear 
 
 class KataminoBoard:
@@ -347,31 +345,3 @@ def create_pieces(plateau):
 
 # Start the game with the main menu
 App(MainMenu())
-
-
-class parametre:
-    def __init__(self):
-        self.taille = 12 
-        pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
-
-
-    def update(self):
-        if pyxel.btnp(pyxel.KEY_RIGHT) and self.taille < max_size:
-            self.taille += 1
-        elif pyxel.btnp(pyxel.KEY_LEFT) and self.taille > min_size:
-            self.taille-= 1
-
-    def draw():
-      pyxel.cls(0) 
-    screen_width = pyxel.width
-    screen_height = pyxel.height
-    square_size = 20  # Taille des carrés
-
-    total_height = 4 * square_size
-    start_x = (screen_width - square_size) // 2
-    start_y = (screen_height - total_height) // 2
-
-    for i in range(4):
-        x = start_x
-        y = start_y + i * square_size
-        pyxel.rect(x, y, square_size, square_size, 9)  # Couleur 9 (bleu clair)
