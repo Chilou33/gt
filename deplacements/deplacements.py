@@ -5,7 +5,7 @@ import random
 
 width = 12 * 32
 height = 5 * 32 + 200
-pyxel.init(width,height,title="PYTHOMINOES",display_scale=1,fps=30)
+pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 
 class App:
     def __init__(self, page_affichée):
@@ -43,7 +43,7 @@ class MainMenu:
         self.pieces_deplacement()  # Déplacer les pièces
 
         if pyxel.btnp(pyxel.KEY_RETURN):  # Lancer le jeu quand "Entrée" est pressé
-            App(EcranChoixPieces())
+            App(Choix_du_mode_et_niveaux())
 
     def draw(self):
         """Dessine le menu principal."""
@@ -59,27 +59,110 @@ class MainMenu:
             
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
 
+mode_grand_chelem = False    
+grand_chelem = [[2,3,7,9,8,4,5,10,9,1,7],\
+                [2,3,6,11,8,4,5,10,9,1,7],\
+                [2,4,6,7,8,1,3,9,11,5,12],\
+                [3,4,6,7,8,1,5,2,11,10,12],\
+                [3,6,7,9,10,2,12,11,4,1,5],\
+                [2,3,5,6,4,9,11,10,8,12,1],\
+                [2,3,5,7,8,1,9,10,12,4,11],\
+                [2,3,6,10,11,8,9,12,4,1,7],\
+                [2,3,6,8,5,11,9,7,12,10,1],\
+                [2,4,5,8,7,10,6,1,12,9,11],\
+                [3,4,5,10,9,1,6,11,8,12,7],\
+                [2,6,7,9,11,3,8,4,5,10,12]]
+niveau_grand_chelem = 0
+
+class Choix_du_mode_et_niveaux:
+    def __init__(self):
+        global pieces_selectionnees
+        global grand_chelem
+        self.grand_chelem = grand_chelem
+        pyxel.load("ressources.pyxres")
+        self.mode_grand_chelem = False
+        self.mode_libre = False
+        
+        self.nom_niveau = "ABCDEFGHIJKL"
+        self.selecteur = 0
+        
+    def update(self):
+
+        if pyxel.btnr(pyxel.KEY_RETURN):
+            if self.mode_grand_chelem :
+                global pieces_selectionnees
+                global niveau_grand_chelem 
+                global mode_grand_chelem
+                mode_grand_chelem = True
+                niveau_grand_chelem = self.selecteur
+                pieces_selectionnees = [self.grand_chelem[self.selecteur][i] for i in range(4)]
+                App(Plateau_de_jeu(Plateau(4).clear))
+
+            elif self.mode_libre :
+                App(EcranChoixPieces(self.selecteur+1))
+
+        if pyxel.btnr(pyxel.KEY_G):
+            self.mode_grand_chelem = True
+            
+        if pyxel.btnr(pyxel.KEY_L):
+            self.selecteur = 3 
+            self.mode_libre = True
+            
+
+        if self.mode_grand_chelem or self.mode_libre:
+            if pyxel.btnp(pyxel.KEY_RIGHT,repeat=20):
+                if self.selecteur == 11:
+                    if self.mode_grand_chelem :
+                        self.selecteur = 0
+                    else :
+                        self.selecteur = 3
+
+                else: 
+                    self.selecteur += 1
+
+            if pyxel.btnp(pyxel.KEY_LEFT,repeat=20):
+                if self.mode_libre :
+                    if self.selecteur == 3:
+                        self.selecteur = 11
+                    else: 
+                        self.selecteur -= 1
+
+                elif self.mode_grand_chelem :
+                    if self.selecteur == 0:
+                        self.selecteur = 11
+                    else: 
+                        self.selecteur -= 1
+
+
+    def draw(self):
+        pyxel.cls(1)
+        if self.mode_grand_chelem : 
+            for i in range(4):
+                num = self.grand_chelem[self.selecteur][i]
+                pyxel.bltm((4+i)*32,32*7,0,num*16,8*8,16,16,0,scale=2.0)
+            pyxel.text(4*32+16,32*6,f"Niveau {self.nom_niveau[self.selecteur]} \nPieces de depart :",0)
+
+        elif self.mode_libre:
+            pyxel.text(2*32,130,"Choisissez la taille du plateau puis appuyez sur ENTREE",0)
+            for i in range(self.selecteur+1):
+                for j in range(5):
+                    pyxel.rect(3*32-16+i*16, 150+j*16, 16, 16, 3)
+                    pyxel.rectb(3*32-16+i*16, 150+j*16, 16, 16, 2)
+                    pyxel.text(3*32-16+i*16+4,155+5*16,f"{i+1}",0)
+        else :
+            pyxel.text(4*32,150,"Choisissez votre mode de jeu : \n\nG pour le GRAND CHELEM\nL pour le mode LIBRE",0)
+
 pieces_selectionnees = []
-grand_chelem =[[2,3,7,9,8,4,5,10,9,1,7],
-        [2,3,6,11,8,4,5,10,9,1,7],
-        [2,4,6,7,8,1,3,9,11,5,12],
-        [3,4,6,7,8,1,5,2,11,10,12],
-        [3,6,7,9,10,2,12,11,4,1,5],
-        [2,3,5,6,4,9,11,10,8,12,1],
-        [2,3,5,7,8,1,9,10,12,4,11],
-        [2,3,6,10,11,8,9,12,4,1,7],
-        [2,3,6,8,5,11,9,7,12,10,1],
-        [2,4,5,8,7,10,6,1,12,9,11],
-        [3,4,5,10,9,1,6,11,8,12,7],
-        [2,6,7,9,11,3,8,4,5,10,12]]
+
 
 
 class EcranChoixPieces:
-    def __init__(self):
+    def __init__(self,nb_pieces:int):
         global pieces_selectionnees
         self.liste_pieces_deja_choisies = pieces_selectionnees
         self.liste_piece_choisies = []
         self.position_curseur = 0
+        self.nb_pieces = nb_pieces
         pyxel.load("ressources.pyxres")
         self.etape =len(pieces_selectionnees)
 
@@ -95,43 +178,55 @@ class EcranChoixPieces:
             else: 
                 self.position_curseur -=1
                 
-        if pyxel.btnp(pyxel.KEY_S):  # Changé à btnp pour éviter répétitions
-            if self.etape==0:
+        if pyxel.btnp(pyxel.KEY_S):
+            if self.nb_pieces!=0:
                 if self.position_curseur not in self.liste_piece_choisies:
-                    if len(self.liste_piece_choisies) < 4:
-                        self.liste_piece_choisies.append(self.position_curseur)
+                    if len(self.liste_piece_choisies) < self.nb_pieces:
+                        self.liste_piece_choisies.append(self.position_curseur)  
             else:
-                if self.position_curseur not in self.liste_piece_choisies:
-                    if len(self.liste_piece_choisies) < 1:
-                        self.liste_piece_choisies.append(self.position_curseur)   
+                if self.etape==0:
+                    if self.position_curseur not in self.liste_piece_choisies:
+                        if len(self.liste_piece_choisies) < 4:
+                            self.liste_piece_choisies.append(self.position_curseur)
+                else:
+                    if self.position_curseur not in self.liste_piece_choisies:
+                        if len(self.liste_piece_choisies) < 1:
+                            self.liste_piece_choisies.append(self.position_curseur)   
         
         if pyxel.btnp(pyxel.KEY_E): 
             self.liste_piece_choisies = []
             
         if pyxel.btnp(pyxel.KEY_RETURN):
-            if (self.etape == 0 and len(self.liste_piece_choisies) == 4) or \
-               (self.etape > 0 and len(self.liste_piece_choisies) == 1):
-                # Mise à jour des variables globales
-                global pieces_selectionnees
-                pieces_selectionnees = self.liste_pieces_deja_choisies + self.liste_piece_choisies
-                App(Plateau_de_jeu(Plateau(len(pieces_selectionnees)).clear))
+            global pieces_selectionnees
+            if self.nb_pieces!=0:
+                if self.nb_pieces==len(self.liste_piece_choisies):
+                    pieces_selectionnees = self.liste_pieces_deja_choisies + self.liste_piece_choisies
+                    App(Plateau_de_jeu(Plateau(len(pieces_selectionnees)).clear))
+            else :
+                if (self.etape == 0 and len(self.liste_piece_choisies) == 4) or \
+                (self.etape > 0 and len(self.liste_piece_choisies) == 1):
+                    pieces_selectionnees = self.liste_pieces_deja_choisies + self.liste_piece_choisies
+                    App(Plateau_de_jeu(Plateau(len(pieces_selectionnees)).clear))
 
     def draw(self):
-        pyxel.cls(0)
-        if self.etape==0:
-            pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S",1,)
-        else:  
-            pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",1,)
+        pyxel.cls(1)
+        if self.nb_pieces != 0:
+            pyxel.text(3*32,3*32,f"Sélectionnez {self.nb_pieces} pieces en appuyant sur S",0)
+        else:
+            if self.etape==0:
+                pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S",0)
+            else:  
+                pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S",0)
         pyxel.bltm(3*32,4*32,0,0,8*8,12*16,16,0,scale=2)
         for i in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
-            pyxel.rect(i*32,4*32-8,32,32,0)
-        pyxel.rectb(self.position_curseur*32,4*32-8,32,32,1)
-        pyxel.text(3*32,5*32,"Pieces Selectionnees :",1)
+            pyxel.rect(i*32,4*32-8,32,32,1)
+        pyxel.rectb(self.position_curseur*32,4*32-8,32,32,2)
+        pyxel.text(3*32,5*32,"Pieces Selectionnees :",0)
         decalage = 0
         for image_piece in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
             pyxel.bltm(8+decalage,6*32,0,image_piece*16,8*8,16,16,0,scale=2.0)
             decalage+=32
-        pyxel.text(3*32,32*5+180,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",1)
+        pyxel.text(3*32,32*5+180,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",0)
 
 class Ecran_de_victoire:
     def __init__(self):
@@ -177,8 +272,14 @@ class Ecran_de_victoire:
 
         self.ajouter_piece_cascade()  
         self.pieces_deplacement()  
+
         if pyxel.btn(pyxel.KEY_RETURN):
-            App(EcranChoixPieces())
+            global mode_grand_chelem,pieces_selectionnees
+            if mode_grand_chelem:
+                App(Plateau_de_jeu(Plateau(len(pieces_selectionnees)).clear))
+            else :
+                App(EcranChoixPieces(0))
+
         if pyxel.btnp(pyxel.KEY_Q):
             pyxel.quit()
 
@@ -208,7 +309,8 @@ class Plateau_de_jeu:
     def __init__(self, plateau, cell_size=32):
         self.Dplateau = [row[:] for row in plateau]
         self.plateau = plateau
-
+        global pieces_selectionnees
+        
         self.etape = len(pieces_selectionnees)
         print(self.etape)
 
@@ -360,10 +462,18 @@ class Plateau_de_jeu:
         if self.verif_victoire():
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
+            global grand_chelem, niveau_grand_chelem, mode_grand_chelem
+            if mode_grand_chelem : 
+                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i] for i in range(len(pieces_selectionnees)+1)]
             App(Ecran_de_victoire())
 
         if pyxel.btn(pyxel.KEY_G):
-            App(EcranChoixPieces())
+            self.alert_message = "Victoire!"
+            self.alert_timer = self.alert_duration
+            if mode_grand_chelem : 
+                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i] for i in range(len(pieces_selectionnees)+1)]
+            App(Ecran_de_victoire())
+            
         
         if self.alert_timer > 0:
             self.alert_timer -= 1
@@ -386,7 +496,7 @@ class Plateau_de_jeu:
                         color
                     )
                 pyxel.rectb(
-             w       x * self.cell_size,
+                    x * self.cell_size,
                     y * self.cell_size,
                     self.cell_size,
                     self.cell_size,
@@ -641,4 +751,4 @@ def create_pieces(plateau):
     return pieces
 
 
-App(MainMenu())
+App(Choix_du_mode_et_niveaux())
