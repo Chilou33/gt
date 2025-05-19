@@ -309,7 +309,7 @@ class Ecran_de_victoire:
             pyxel.blt(x, y, 0, piece_val, 16, 16, 16, 0, scale=2.0)
 
 class Ecran_de_fin:
-    def __init_(self):
+    def __init__(self):
         global mode_grand_chelem,niveau_grand_chelem
         self.nom_niveau = "ABCDEFGHIJKL"
         self.message= f"Felicitations !\nVous avez résolu le dernier niveau de votre partie en mode libre"
@@ -499,7 +499,7 @@ class Plateau_de_jeu:
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
             global grand_chelem, niveau_grand_chelem, mode_grand_chelem
-            if len(pieces_selectionnees) == 12 :
+            if self.etape == 12 :
                 App(Ecran_de_fin())
             if mode_grand_chelem : 
                 pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
@@ -508,7 +508,8 @@ class Plateau_de_jeu:
         if pyxel.btn(pyxel.KEY_G):
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
-            #if len(pieces_selectionnees) == 12 :
+            if self.etape == 12 :
+                App(Ecran_de_fin())
             if mode_grand_chelem : 
                 pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
             App(Ecran_de_victoire())
