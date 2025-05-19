@@ -751,4 +751,4 @@ def create_pieces(plateau):
     return pieces
 
 
-App(Choix_du_mode_et_niveaux())
+App(MainMenu())
