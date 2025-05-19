@@ -13,7 +13,7 @@ class App:
    
 class MainMenu:
     def __init__(self):
-        self.message = "Bienvenue dans Pythominoes\nAppuyez sur Entree pour jouer"
+        self.message = "Bienvenue dans Pythominos\nAppuyez sur Entree pour jouer"
         pyxel.load("ressources.pyxres")
         self.pieces_cascade_liste = []  # Liste des pièces en cascade
         self.val = randint(1, 12) * 16 + 8  # Valeur initiale
@@ -48,7 +48,7 @@ class MainMenu:
     def draw(self):
         """Dessine le menu principal."""
         pyxel.cls(1)  # Efface l'écran avec une couleur de fond
-        pyxel.text(30, (5 * 30 + 200) // 2, self.message, 0)  # Affiche le message
+        pyxel.text(36, (5 * 30 + 200) // 2, self.message, 0)  # Affiche le message
 
         # Dessiner les pièces en cascade
         for piece in self.pieces_cascade_liste:
@@ -58,20 +58,35 @@ class MainMenu:
                 piece_val = self.val  # Utiliser la valeur par défaut si non spécifiée
             
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
+        pyxel.bltm(3*32+16,64,2,0,0,20*8,2*8,colkey=3,scale=2.0)
 
 mode_grand_chelem = False    
-grand_chelem = [[2,3,7,9,8,4,5,10,9,1,7],\
-                [2,3,6,11,8,4,5,10,9,1,7],\
-                [2,4,6,7,8,1,3,9,11,5,12],\
-                [3,4,6,7,8,1,5,2,11,10,12],\
-                [3,6,7,9,10,2,12,11,4,1,5],\
-                [2,3,5,6,4,9,11,10,8,12,1],\
-                [2,3,5,7,8,1,9,10,12,4,11],\
-                [2,3,6,10,11,8,9,12,4,1,7],\
-                [2,3,6,8,5,11,9,7,12,10,1],\
-                [2,4,5,8,7,10,6,1,12,9,11],\
-                [3,4,5,10,9,1,6,11,8,12,7],\
-                [2,6,7,9,11,3,8,4,5,10,12]]
+grand_chelem = [
+    # Niveau A
+    [2, 3, 6, 11, 8, 4, 5, 10, 9, 1, 7, 12],
+    # Niveau B
+    [2, 3, 7, 9, 8, 5, 6, 4, 10, 1, 12, 11],
+    # Niveau C
+    [2, 4, 6, 7, 8, 1, 3, 9, 11, 5, 12, 10],
+    # Niveau D
+    [3, 4, 6, 7, 8, 1, 5, 2, 11, 10, 12, 9],
+    # Niveau E
+    [3, 6, 7, 9, 10, 2, 12, 11, 4, 1, 5, 8],
+    # Niveau F
+    [2, 3, 5, 6, 4, 9, 11, 10, 8, 12, 1, 7],
+    # Niveau G
+    [2, 3, 5, 7, 8, 1, 9, 10, 12, 4, 11, 6],
+    # Niveau H
+    [2, 3, 6, 10, 11, 8, 9, 12, 4, 1, 7, 5],
+    # Niveau I
+    [2, 3, 6, 8, 5, 11, 9, 7, 12, 10, 1, 4],
+    # Niveau J
+    [2, 4, 5, 8, 7, 10, 6, 1, 12, 9, 11, 3],
+    # Niveau K
+    [3, 4, 5, 10, 9, 1, 6, 11, 8, 12, 7, 2],
+    # Niveau L
+    [2, 6, 7, 9, 11, 3, 8, 4, 5, 10, 12, 1]
+]
 niveau_grand_chelem = 0
 
 class Choix_du_mode_et_niveaux:
@@ -95,7 +110,7 @@ class Choix_du_mode_et_niveaux:
                 global mode_grand_chelem
                 mode_grand_chelem = True
                 niveau_grand_chelem = self.selecteur
-                pieces_selectionnees = [self.grand_chelem[self.selecteur][i] for i in range(4)]
+                pieces_selectionnees = [self.grand_chelem[self.selecteur][i]-1 for i in range(4)]
                 App(Plateau_de_jeu(Plateau(4).clear))
 
             elif self.mode_libre :
@@ -139,8 +154,8 @@ class Choix_du_mode_et_niveaux:
         if self.mode_grand_chelem : 
             for i in range(4):
                 num = self.grand_chelem[self.selecteur][i]
-                pyxel.bltm((4+i)*32,32*7,0,num*16,8*8,16,16,0,scale=2.0)
-            pyxel.text(4*32+16,32*6,f"Niveau {self.nom_niveau[self.selecteur]} \nPieces de depart :",0)
+                pyxel.bltm((4+i)*32,32*5,0,(num-1)*16,8*8,16,16,0,scale=2.0)
+            pyxel.text(4*32+16,32*4,f"Niveau {self.nom_niveau[self.selecteur]} \nPieces de depart :",0)
 
         elif self.mode_libre:
             pyxel.text(2*32,130,"Choisissez la taille du plateau puis appuyez sur ENTREE",0)
@@ -292,7 +307,28 @@ class Ecran_de_victoire:
         for piece in self.pieces_cascade_liste:
             x, y, piece_val, _, _ = piece 
             pyxel.blt(x, y, 0, piece_val, 16, 16, 16, 0, scale=2.0)
-    
+
+class Ecran_de_fin:
+    def __init_(self):
+        global mode_grand_chelem,niveau_grand_chelem
+        self.nom_niveau = "ABCDEFGHIJKL"
+        self.message= f"Felicitations !\nVous avez résolu le dernier niveau de votre partie en mode libre"
+        if mode_grand_chelem :
+            self.message = f"Felicitations !\nVous avez résolu le dernier niveau de la série {self.nom_niveau[niveau_grand_chelem]}"
+
+    def update(self):
+        if pyxel.btnr(pyxel.KEY_RETURN):
+            global mode_grand_chelem,niveau_grand_chelem,pieces_selectionnees
+            mode_grand_chelem = False
+            niveau_grand_chelem = 0
+            pieces_selectionnees = []
+            App(MainMenu())
+
+    def draw(self):
+        pyxel.cls(1)    
+        pyxel.text(4*32,130,self.message,0)
+        pyxel.text(4*32,150,"Appuyez sur ENTREE pour retourner au Menu Titre",0)
+
 class Plateau:
     def __init__(self,taille: int):
         self.taille = taille
@@ -463,15 +499,18 @@ class Plateau_de_jeu:
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
             global grand_chelem, niveau_grand_chelem, mode_grand_chelem
+            if len(pieces_selectionnees) == 12 :
+                App(Ecran_de_fin())
             if mode_grand_chelem : 
-                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i] for i in range(len(pieces_selectionnees)+1)]
+                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
             App(Ecran_de_victoire())
 
         if pyxel.btn(pyxel.KEY_G):
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
+            #if len(pieces_selectionnees) == 12 :
             if mode_grand_chelem : 
-                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i] for i in range(len(pieces_selectionnees)+1)]
+                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
             App(Ecran_de_victoire())
             
         
