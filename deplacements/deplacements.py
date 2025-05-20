@@ -535,11 +535,7 @@ class Plateau_de_jeu:
                         self.cell_size,
                         color
                     )
-<<<<<<< HEAD
-                pyxel.rectb(      
-=======
                 pyxel.rectb(
->>>>>>> b308e0c10ab96566103dfec4949bad1d2bde0c2c
                     x * self.cell_size,
                     y * self.cell_size,
                     self.cell_size,
