@@ -311,10 +311,11 @@ class Ecran_de_victoire:
 class Ecran_de_fin:
     def __init__(self):
         global mode_grand_chelem,niveau_grand_chelem
+        pyxel.load("ressources.pyxres")
         self.nom_niveau = "ABCDEFGHIJKL"
-        self.message= f"Felicitations !\nVous avez résolu le dernier niveau de votre partie en mode libre"
+        self.message= f"Vous avez résolu le dernier niveau de votre partie en mode libre"
         if mode_grand_chelem :
-            self.message = f"Felicitations !\nVous avez résolu le dernier niveau de la série {self.nom_niveau[niveau_grand_chelem]}"
+            self.message = f"Vous avez résolu le dernier niveau de la série {self.nom_niveau[niveau_grand_chelem]}"
 
     def update(self):
         if pyxel.btnr(pyxel.KEY_RETURN):
@@ -325,9 +326,11 @@ class Ecran_de_fin:
             App(MainMenu())
 
     def draw(self):
-        pyxel.cls(1)    
-        pyxel.text(4*32,130,self.message,0)
-        pyxel.text(4*32,150,"Appuyez sur ENTREE pour retourner au Menu Titre",0)
+        pyxel.cls(1)
+        pyxel.bltm(4*32,90,2,0,16,14*8,16,3,scale=2.0)
+        pyxel.text(4*32+26,150,"Felicitations !",0)   
+        pyxel.text(2*32,170,self.message,0)
+        pyxel.text(3*32,200,"Appuyez sur ENTREE pour retourner au Menu Titre",0)
 
 class Plateau:
     def __init__(self,taille: int):
