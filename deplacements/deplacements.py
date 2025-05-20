@@ -385,8 +385,8 @@ class Plateau_de_jeu:
                         self.cell_size,
                         color
                     )
-                pyxel.rectb(
-             w       x * self.cell_size,
+                pyxel.rectb(      
+                    x * self.cell_size,
                     y * self.cell_size,
                     self.cell_size,
                     self.cell_size,
@@ -639,6 +639,6 @@ def create_pieces(plateau):
                                  [0, 12]], plateau)\
     ]
     return pieces
-
+ 
 
 App(MainMenu())
