@@ -10,7 +10,6 @@ pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 class App:
     def __init__(self, page_affichée):
         pyxel.run(page_affichée.update, page_affichée.draw)
-   
 class MainMenu:
     def __init__(self):
         self.message = "Bienvenue dans Pythominos\nAppuyez sur Entree pour jouer"
@@ -155,6 +154,7 @@ class Choix_du_mode_et_niveaux:
             for i in range(4):
                 num = self.grand_chelem[self.selecteur][i]
                 pyxel.bltm((4+i)*32,32*5,0,(num-1)*16,8*8,16,16,0,scale=2.0)
+            pyxel.text((4*32-30),85,"Bienvenue dans le mode grand chelem choisissez votre serie",0)
             pyxel.text(4*32+16,32*4,f"Niveau {self.nom_niveau[self.selecteur]} \nPieces de depart :",0)
 
         elif self.mode_libre:
@@ -792,6 +792,6 @@ def create_pieces(plateau):
                                  [0, 12]], plateau)\
     ]
     return pieces
-
+ 
 
 App(MainMenu())
