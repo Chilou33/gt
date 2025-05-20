@@ -7,6 +7,37 @@ width = 12 * 32
 height = 5 * 32 + 200
 pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 
+pieces_selectionnees = []
+
+mode_grand_chelem = False    
+grand_chelem = [
+    # Niveau A
+    [2, 3, 6, 11, 8, 4, 5, 10, 9, 1, 7, 12],
+    # Niveau B
+    [2, 3, 7, 9, 8, 5, 6, 4, 10, 1, 12, 11],
+    # Niveau C
+    [2, 4, 6, 7, 8, 1, 3, 9, 11, 5, 12, 10],
+    # Niveau D
+    [3, 4, 6, 7, 8, 1, 5, 2, 11, 10, 12, 9],
+    # Niveau E
+    [3, 6, 7, 9, 10, 2, 12, 11, 4, 1, 5, 8],
+    # Niveau F
+    [2, 3, 5, 6, 4, 9, 11, 10, 8, 12, 1, 7],
+    # Niveau G
+    [2, 3, 5, 7, 8, 1, 9, 10, 12, 4, 11, 6],
+    # Niveau H
+    [2, 3, 6, 10, 11, 8, 9, 12, 4, 1, 7, 5],
+    # Niveau I
+    [2, 3, 6, 8, 5, 11, 9, 7, 12, 10, 1, 4],
+    # Niveau J
+    [2, 4, 5, 8, 7, 10, 6, 1, 12, 9, 11, 3],
+    # Niveau K
+    [3, 4, 5, 10, 9, 1, 6, 11, 8, 12, 7, 2],
+    # Niveau L
+    [2, 6, 7, 9, 11, 3, 8, 4, 5, 10, 12, 1]
+]
+niveau_grand_chelem = 0
+
 class App:
     def __init__(self, page_affichée):
         pyxel.run(page_affichée.update, page_affichée.draw)
@@ -59,34 +90,6 @@ class MainMenu:
             pyxel.blt(piece[0], piece[1], 0, piece_val, 16, 16, 16, 0, scale=2.0)
         pyxel.bltm(3*32+16,64,2,0,0,20*8,2*8,colkey=3,scale=2.0)
 
-mode_grand_chelem = False    
-grand_chelem = [
-    # Niveau A
-    [2, 3, 6, 11, 8, 4, 5, 10, 9, 1, 7, 12],
-    # Niveau B
-    [2, 3, 7, 9, 8, 5, 6, 4, 10, 1, 12, 11],
-    # Niveau C
-    [2, 4, 6, 7, 8, 1, 3, 9, 11, 5, 12, 10],
-    # Niveau D
-    [3, 4, 6, 7, 8, 1, 5, 2, 11, 10, 12, 9],
-    # Niveau E
-    [3, 6, 7, 9, 10, 2, 12, 11, 4, 1, 5, 8],
-    # Niveau F
-    [2, 3, 5, 6, 4, 9, 11, 10, 8, 12, 1, 7],
-    # Niveau G
-    [2, 3, 5, 7, 8, 1, 9, 10, 12, 4, 11, 6],
-    # Niveau H
-    [2, 3, 6, 10, 11, 8, 9, 12, 4, 1, 7, 5],
-    # Niveau I
-    [2, 3, 6, 8, 5, 11, 9, 7, 12, 10, 1, 4],
-    # Niveau J
-    [2, 4, 5, 8, 7, 10, 6, 1, 12, 9, 11, 3],
-    # Niveau K
-    [3, 4, 5, 10, 9, 1, 6, 11, 8, 12, 7, 2],
-    # Niveau L
-    [2, 6, 7, 9, 11, 3, 8, 4, 5, 10, 12, 1]
-]
-niveau_grand_chelem = 0
 
 class Choix_du_mode_et_niveaux:
     def __init__(self):
@@ -166,9 +169,6 @@ class Choix_du_mode_et_niveaux:
                     pyxel.text(3*32-16+i*16+4,155+5*16,f"{i+1}",0)
         else :
             pyxel.text(4*32,150,"Choisissez votre mode de jeu : \n\nG pour le GRAND CHELEM\nL pour le mode LIBRE",0)
-
-pieces_selectionnees = []
-
 
 
 class EcranChoixPieces:
@@ -574,6 +574,10 @@ class Plateau_de_jeu:
         for i in self.index_pieces_non_jouables :
             pyxel.rect(self.liste_des_coordonnees_des_boutons[i][0],self.liste_des_coordonnees_des_boutons[i][1],32,32,1)
         
+        for piece in self.pieces_jouables :
+            if piece[1]:
+                num = piece[0].numero - 1 
+                pyxel.bltm(self.liste_des_coordonnees_des_boutons[num][0]+8,self.liste_des_coordonnees_des_boutons[num][1]+8,0,num*16,10*8,16,16,4,scale=2.0)
         
         # Afficher l'alerte si nécessaire
         if self.alert_timer > 0:
