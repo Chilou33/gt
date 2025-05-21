@@ -49,6 +49,9 @@ class MainMenu:
         self.pieces_deplacement()  # Déplacer les pièces
         if pyxel.btnp(pyxel.KEY_RETURN):  # Lancer le jeu quand "Entrée" est pressé
             App(KataminoBoard(plateau))
+        if pyxel.btnp(pyxel.KEY_P):
+            App(parametre())
+
 
     def draw(self):
         """Dessine le menu principal."""
@@ -84,7 +87,7 @@ class KataminoBoard:
         self.ligne = len(plateau)
         self.cols = len(plateau[0]) if self.ligne > 0 else 0
 
-        pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
+        self.colors = [0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625]
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
         pyxel.load("tilemap.pyxres")
@@ -345,33 +348,35 @@ def create_pieces(plateau):
     ]
     return pieces
 
-# Start the game with the main menu
-App(MainMenu())
-
 
 class parametre:
     def __init__(self):
         self.taille = 12 
-        pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
-
-
+        
     def update(self):
         if pyxel.btnp(pyxel.KEY_RIGHT) and self.taille < max_size:
             self.taille += 1
         elif pyxel.btnp(pyxel.KEY_LEFT) and self.taille > min_size:
             self.taille-= 1
+        if pyxel.btnp(pyxel.KEY_J): 
+            App(parametre())
 
-    def draw():
-      pyxel.cls(0) 
-    screen_width = pyxel.width
-    screen_height = pyxel.height
-    square_size = 20  # Taille des carrés
-
-    total_height = 4 * square_size
-    start_x = (screen_width - square_size) // 2
-    start_y = (screen_height - total_height) // 2
-
-    for i in range(4):
-        x = start_x
-        y = start_y + i * square_size
-        pyxel.rect(x, y, square_size, square_size, 9)  # Couleur 9 (bleu clair)
+    def draw(self):
+        pyxel.cls(0) 
+        screen_width = pyxel.width
+        screen_height = pyxel.height
+        square_size = 10  # Taille des carrés
+        espace_size= 1
+        total_height = 4 * square_size 
+        start_x = (screen_width - square_size*self.taille) // 2
+        start_y = (screen_height - total_height) // 2
+        for i in range(self.taille):
+            x = start_x + i * square_size + i*espace_size
+            for i in range(4):
+                y = start_y + i * square_size + i*espace_size
+                pyxel.rect(x, y, square_size, square_size, 16)  # Couleur 9 (bleu clair)
+# Start the game with the main menu
+App(MainMenu())
+#if pyxel.btnp(pyxel.KEY_RETURN):  # touche pour lancer le jeu
+#    plateau = Plateau(self.taille).clear
+#    App(KataminoBoard(plateau))
