@@ -312,11 +312,43 @@ class Ecran_de_fin:
     def __init__(self):
         global mode_grand_chelem,niveau_grand_chelem
         pyxel.load("ressources.pyxres")
+        self.pieces_cascade_liste = []  # Liste des pièces en cascade [x, y, image_val, angle_rad, speed]
+        self.val = randint(1, 12) * 16 + 8  # Valeur initiale
+        self.piece_size = 32 
         self.nom_niveau = "ABCDEFGHIJKL"
         self.message= f"Vous avez résolu le dernier niveau de votre partie en mode libre"
         if mode_grand_chelem :
             self.message = f"Vous avez résolu le dernier niveau de la série {self.nom_niveau[niveau_grand_chelem]}"
+            
+    def pieces_deplacement(self):
+        for piece in self.pieces_cascade_liste.copy():  
+            x, y, _, angle, speed = piece
 
+            dx = speed * math.cos(angle)
+            dy = -speed * math.sin(angle)
+
+            piece[0] += dx
+            piece[1] -= dy
+
+            if piece[1] < -self.piece_size:
+                self.pieces_cascade_liste.remove(piece)
+    def ajouter_piece_cascade_chelem(self):
+        corner = random.randint(0, 1)
+        speed = random.uniform(1.5, 3.0) 
+        piece_val = randint(1, 12) * 16 + 8  
+
+        if corner == 0:
+            x_position = 0  
+
+            angle_rad = random.uniform(0, math.pi / 2)
+        else:
+            x_position = width - self.piece_size 
+
+            angle_rad = random.uniform(math.pi / 2, math.pi)
+
+        y_position = 0
+        self.pieces_cascade_liste.append([x_position, y_position, piece_val, angle_rad, speed])
+        
     def update(self):
         if pyxel.btnr(pyxel.KEY_RETURN):
             global mode_grand_chelem,niveau_grand_chelem,pieces_selectionnees
@@ -324,13 +356,19 @@ class Ecran_de_fin:
             niveau_grand_chelem = 0
             pieces_selectionnees = []
             App(MainMenu())
+        self.ajouter_piece_cascade_chelem() 
+        self.pieces_deplacement() 
 
     def draw(self):
         pyxel.cls(1)
+        for piece in self.pieces_cascade_liste:
+            x, y, piece_val, _, _ = piece 
+            pyxel.blt(x, y, 0, piece_val, 16, 16, 16, 0, scale=2.0)
         pyxel.bltm(4*32,90,2,0,16,14*8,16,3,scale=2.0)
         pyxel.text(4*32+26,150,"Felicitations !",0)   
         pyxel.text(2*32,170,self.message,0)
         pyxel.text(3*32,200,"Appuyez sur ENTREE pour retourner au Menu Titre",0)
+        
 
 class Plateau:
     def __init__(self,taille: int):
