@@ -476,7 +476,7 @@ class Plateau_de_jeu:
     def update(self):
         pyxel.mouse(True)
 
-        global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape 
+        global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape, grand_chelem 
         if pyxel.btnp(pyxel.KEY_S):
 
             save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, self.plateau, self.etape, self.save_filename) # Pass self.etape
@@ -600,8 +600,6 @@ class Plateau_de_jeu:
                     self.piece_selectionnee.etat_deplacement = True
 
         if self.verif_victoire():
-            global grand_chelem, niveau_grand_chelem, mode_grand_chelem
-
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
             if self.etape == 12 :
@@ -628,7 +626,7 @@ class Plateau_de_jeu:
     def draw(self):
         pyxel.cls(1)
         if self.menu_rapide :
-            
+            pass
         pyxel.bltm(3*32,40,0,0,16*8,24*8,10*8,scale=2.0)
         pyxel.bltm(3*32+(self.etape-1)*32,40,1,0,0,16*8,10*8,scale=2.0)
         for y in range(self.ligne):
