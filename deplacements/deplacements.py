@@ -428,7 +428,7 @@ class Plateau_de_jeu:
             self.pieces_jouables = [[self.pieces[piece_idx],False,False] for piece_idx in pieces_selectionnees]
             if not self.pieces_jouables: 
                  self.index_piece_selectionnee = -1
-                 self.piece_selectionnee = None
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
             else:
                  self.index_piece_selectionnee = 0
                  self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
@@ -442,7 +442,7 @@ class Plateau_de_jeu:
             self.pieces_jouables = [[self.pieces[piece],False,False] for piece in pieces_selectionnees]
             if not self.pieces_jouables:
                  self.index_piece_selectionnee = -1
-                 self.piece_selectionnee = None
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
             else:
                  self.index_piece_selectionnee = 0
                  self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
