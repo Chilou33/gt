@@ -493,7 +493,7 @@ class Plateau_de_jeu:
             else:
                 self.index_piece_selectionnee = 0
                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
-
+            self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees] # Add this line
         else:
             self.Dplateau = [row[:] for row in plateau]
             self.plateau = plateau
