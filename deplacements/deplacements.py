@@ -310,12 +310,12 @@ class EcranChoixPieces:
     def draw(self):
         pyxel.cls(1)
         if self.nb_pieces != 0:
-            pyxel.text(3*32,3*32,f"Sélectionnez {self.nb_pieces} pieces en appuyant sur S\n(appuyez sur E pour réinitialiser vos choix)",0)
+            pyxel.text(3*32,3*32,f"Sélectionnez {self.nb_pieces} pieces en appuyant sur S\n(appuyez sur C pour reinitialiser vos choix)",0)
         else:
             if self.etape==0:
-                pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S\n(appuyez sur E pour réinitialiser vos choix)",0)
+                pyxel.text(3*32,3*32,"Sélectionnez 4 pieces en appuyant sur S\n(appuyez sur C pour reinitialiser vos choix)",0)
             else:  
-                pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S\n(appuyez sur E pour réinitialiser vos choix)",0)
+                pyxel.text(3*32,3*32,"Sélectionnez 1 piece en appuyant sur S\n(appuyez sur C pour reinitialiser vos choix)",0)
         pyxel.bltm(3*32,4*32,0,0,8*8,12*16,16,0,scale=2)
         for i in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
             pyxel.rect(i*32,4*32-8,32,32,1)
@@ -661,14 +661,13 @@ class Plateau_de_jeu:
             if self.piece_selectionnee.etat_deplacement:
                 if self.piece_selectionnee.test_placement():
                     if self.pieces_jouables[self.index_piece_selectionnee][2]:
-                        pyxel.play(3,36)
-                        pyxel.play(3,37)
                         self.piece_selectionnee.place_on_plateau()
                         self.pieces_jouables[self.index_piece_selectionnee][1] = True  
                         
                     self.index_piece_selectionnee = (self.index_piece_selectionnee + 1) % len(self.pieces_jouables)
                     self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
-                        
+                    pyxel.play(3,36)
+                    pyxel.play(3,37)
                     if self.pieces_jouables[self.index_piece_selectionnee][1]:
                         self.piece_selectionnee.etat_deplacement = False
                     else:
@@ -879,9 +878,9 @@ class Piece:
     def rotate(self):
         self.place_on_Dplateau()
 
-        if self.numero in [6,8,4,5]:
+        if self.numero in [6,8,4,5,10]:
             self.rotation_anchor = self.cos_actuelles[1]
-        if self.numero in [1, 2, 3, 7, 9, 10, 11, 12]:
+        if self.numero in [1, 2, 3, 7, 9, 11, 12]:
             self.rotation_anchor = self.cos_actuelles[2]
 
         anchor_x = self.rotation_anchor[0]
