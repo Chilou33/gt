@@ -6,7 +6,7 @@ def save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees,
         "niveau_grand_chelem": niveau_grand_chelem,
         "pieces_selectionnees": pieces_selectionnees,
         "plateau": plateau,
-        "etape": etape  # Save etape
+        "etape": etape 
     }
     with open(filename, 'w') as f:
         json.dump(game_data, f)
