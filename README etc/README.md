@@ -85,7 +85,7 @@ Pythominoes est une implémentation en Python du jeu de puzzle Katamino. Les jou
 * [X] Système de sélection des pièces par niveau/étape.
 * [X] Système de sauvegarde et chargement de la progression.
 * [X] Conception des niveaux du Grand Chelem.
-* [ ] Système de score (optionnel).
+* [ ] Système de temps (envisagé).
 * [ ] Effets sonores et musique (implémentation partielle, à finaliser).
 * [ ] Mode multijoueur (envisagé pour le futur).
 
