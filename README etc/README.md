@@ -21,7 +21,7 @@ Pythominoes est une implémentation en Python du jeu de puzzle Katamino. Les jou
   * Écran de sélection des pièces (pour le mode libre).
   * Affichage clair du plateau de jeu et des pièces.
   * Écrans de victoire et de fin de partie.
-* **Personnalisation**: Options pour activer/désactiver la musique et les effets sonores (fonctionnalité prévue).
+* **Personnalisation**: Options pour activer/désactiver la musique et les effets sonores.
 
 ## 💻 Prérequis
 
