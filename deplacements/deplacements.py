@@ -44,7 +44,7 @@ class App:
         pyxel.run(page_affichée.update, page_affichée.draw)
 class MainMenu:
     def __init__(self):
-        self.message = "Bienvenue dans Pythominos\\nAppuyez sur Entree pour jouer\\nAppuyez sur D pour charger une partie" 
+        self.message = "Bienvenue dans Pythominos Appuyez sur Entree pour jouer ou D pour charger une partie" 
         pyxel.load("ressources.pyxres")
         self.pieces_cascade_liste = []  # Liste des pièces en cascade
         self.val = randint(1, 12) * 16 + 8  # Valeur initiale
