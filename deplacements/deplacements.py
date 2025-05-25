@@ -472,13 +472,12 @@ class Plateau_de_jeu:
                 if self.plateau[y][x] == 0:
                     return False  
         return True 
-
+    
     def update(self):
         pyxel.mouse(True)
 
         global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape, grand_chelem 
-        if pyxel.btnp(pyxel.KEY_S):
-
+        if pyxel.btnp(pyxel.KEY_W) or pyxel.btnp(pyxel.KEY_M):
             save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, self.plateau, self.etape, self.save_filename) # Pass self.etape
             self.alert_message = "Partie sauvegardée!"
             self.alert_timer = self.alert_duration
@@ -530,7 +529,7 @@ class Plateau_de_jeu:
             else :
                 self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
-        if pyxel.btnp(pyxel.KEY_LEFT,repeat=8):
+        if pyxel.btnp(pyxel.KEY_LEFT,repeat=8) or pyxel.btnp(pyxel.KEY_Q,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(-1, 0)
             if not success:
                 self.alert_message = "Deplacement impossible!"
@@ -539,7 +538,7 @@ class Plateau_de_jeu:
                 self.pieces_jouables[self.index_piece_selectionnee][2] = True
                 pyxel.play(3,33)
 
-        if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8):
+        if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8) or pyxel.btnp(pyxel.KEY_D,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(1, 0)
             if not success:
                 self.alert_message = "Deplacement impossible!"
@@ -548,7 +547,7 @@ class Plateau_de_jeu:
                 self.pieces_jouables[self.index_piece_selectionnee][2] = True
                 pyxel.play(3,33)
 
-        if pyxel.btnp(pyxel.KEY_DOWN,repeat=8):
+        if pyxel.btnp(pyxel.KEY_DOWN,repeat=8) or pyxel.btnp(pyxel.KEY_S,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(0, 1)
             if not success:
                 self.alert_message = "Deplacement impossible!"
@@ -557,7 +556,7 @@ class Plateau_de_jeu:
                 self.pieces_jouables[self.index_piece_selectionnee][2] = True
                 pyxel.play(3,33)
 
-        if pyxel.btnp(pyxel.KEY_UP,repeat=8):
+        if pyxel.btnp(pyxel.KEY_UP,repeat=8) or pyxel.btnp(pyxel.KEY_Z,repeat=8):
             self.Dplateau, success = self.piece_selectionnee.deplacement(0, -1)
             if not success:
                 self.alert_message = "Deplacement impossible!"
@@ -839,7 +838,6 @@ class Piece:
             self.cos_actuelles = symetrie_coordinates
             return self.place_on_Dplateau(), True
             
-        # Restaurer l'état initial si la symétrie est impossible
         self.cos_actuelles = old_coordinates
         return self.place_on_Dplateau(), False
 
