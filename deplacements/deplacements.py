@@ -429,7 +429,7 @@ class Plateau_de_jeu:
             self.pieces_jouables = [[self.pieces[piece_idx],False,False] for piece_idx in pieces_selectionnees]
             if not self.pieces_jouables: 
                  self.index_piece_selectionnee = -1
-                 self.piece_selectionnee = None
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
             else:
                  self.index_piece_selectionnee = 0
                  self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
@@ -443,7 +443,7 @@ class Plateau_de_jeu:
             self.pieces_jouables = [[self.pieces[piece],False,False] for piece in pieces_selectionnees]
             if not self.pieces_jouables:
                  self.index_piece_selectionnee = -1
-                 self.piece_selectionnee = None
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
             else:
                  self.index_piece_selectionnee = 0
                  self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
@@ -473,14 +473,15 @@ class Plateau_de_jeu:
                 if self.plateau[y][x] == 0:
                     return False  
         return True 
-
+    
     def update(self):
         pyxel.mouse(True)
 
-        global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape 
-
-        if pyxel.btnr(pyxel.KEY_ESCAPE):
-            self.menu_rapide = not self.menu_rapide
+        global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape, grand_chelem 
+        if pyxel.btnp(pyxel.KEY_W) or pyxel.btnp(pyxel.KEY_M):
+            save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, self.plateau, self.etape, self.save_filename) # Pass self.etape
+            self.alert_message = "Partie sauvegardée!"
+            self.alert_timer = self.alert_duration
 
         if self.menu_rapide :
             if pyxel.btnr(pyxel.KEY_M):
@@ -537,41 +538,41 @@ class Plateau_de_jeu:
                 else :
                     self.pieces_jouables[self.index_piece_selectionnee][2] = True
 
-            if pyxel.btnp(pyxel.KEY_LEFT,repeat=8):
-                self.Dplateau, success = self.piece_selectionnee.deplacement(-1, 0)
-                if not success:
-                    self.alert_message = "Deplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                else :
-                    self.pieces_jouables[self.index_piece_selectionnee][2] = True
-                    pyxel.play(3,33)
+        if pyxel.btnp(pyxel.KEY_LEFT,repeat=8) or pyxel.btnp(pyxel.KEY_Q,repeat=8):
+            self.Dplateau, success = self.piece_selectionnee.deplacement(-1, 0)
+            if not success:
+                self.alert_message = "Deplacement impossible!"
+                self.alert_timer = self.alert_duration
+            else :
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
+                pyxel.play(3,33)
 
-            if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8):
-                self.Dplateau, success = self.piece_selectionnee.deplacement(1, 0)
-                if not success:
-                    self.alert_message = "Deplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                else :
-                    self.pieces_jouables[self.index_piece_selectionnee][2] = True
-                    pyxel.play(3,33)
+        if pyxel.btnp(pyxel.KEY_RIGHT,repeat=8) or pyxel.btnp(pyxel.KEY_D,repeat=8):
+            self.Dplateau, success = self.piece_selectionnee.deplacement(1, 0)
+            if not success:
+                self.alert_message = "Deplacement impossible!"
+                self.alert_timer = self.alert_duration
+            else :
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
+                pyxel.play(3,33)
 
-            if pyxel.btnp(pyxel.KEY_DOWN,repeat=8):
-                self.Dplateau, success = self.piece_selectionnee.deplacement(0, 1)
-                if not success:
-                    self.alert_message = "Deplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                else :
-                    self.pieces_jouables[self.index_piece_selectionnee][2] = True
-                    pyxel.play(3,33)
+        if pyxel.btnp(pyxel.KEY_DOWN,repeat=8) or pyxel.btnp(pyxel.KEY_S,repeat=8):
+            self.Dplateau, success = self.piece_selectionnee.deplacement(0, 1)
+            if not success:
+                self.alert_message = "Deplacement impossible!"
+                self.alert_timer = self.alert_duration
+            else :
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True
+                pyxel.play(3,33)
 
-            if pyxel.btnp(pyxel.KEY_UP,repeat=8):
-                self.Dplateau, success = self.piece_selectionnee.deplacement(0, -1)
-                if not success:
-                    self.alert_message = "Deplacement impossible!"
-                    self.alert_timer = self.alert_duration
-                else :
-                    self.pieces_jouables[self.index_piece_selectionnee][2] = True     
-                    pyxel.play(3,33)
+        if pyxel.btnp(pyxel.KEY_UP,repeat=8) or pyxel.btnp(pyxel.KEY_Z,repeat=8):
+            self.Dplateau, success = self.piece_selectionnee.deplacement(0, -1)
+            if not success:
+                self.alert_message = "Deplacement impossible!"
+                self.alert_timer = self.alert_duration
+            else :
+                self.pieces_jouables[self.index_piece_selectionnee][2] = True     
+                pyxel.play(3,33)
 
             if pyxel.btnp(pyxel.KEY_N):
                 if self.piece_selectionnee.etat_deplacement:
@@ -606,14 +607,14 @@ class Plateau_de_jeu:
                     else:
                         self.piece_selectionnee.etat_deplacement = True
 
-            if self.verif_victoire():
-                self.alert_message = "Victoire!"
-                self.alert_timer = self.alert_duration
-                if self.etape == 12 :
-                    App(Ecran_de_fin())
-                if mode_grand_chelem : 
-                    pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
-                App(Ecran_de_victoire())
+        if self.verif_victoire():
+            self.alert_message = "Victoire!"
+            self.alert_timer = self.alert_duration
+            if self.etape == 12 :
+                App(Ecran_de_fin())
+            if mode_grand_chelem : 
+                pieces_selectionnees = [grand_chelem[niveau_grand_chelem][i]-1 for i in range(len(pieces_selectionnees)+1)]
+            App(Ecran_de_victoire())
 
             if pyxel.btn(pyxel.KEY_G):
                 self.alert_message = "Victoire!" 
@@ -847,7 +848,6 @@ class Piece:
             self.cos_actuelles = symetrie_coordinates
             return self.place_on_Dplateau(), True
             
-        # Restaurer l'état initial si la symétrie est impossible
         self.cos_actuelles = old_coordinates
         return self.place_on_Dplateau(), False
 
