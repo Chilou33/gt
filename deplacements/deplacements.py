@@ -2,7 +2,7 @@ import pyxel
 import math
 from random import randint
 import random
-#from sauvegarde import save_game_file
+from sauvegarde import save_game_file, load_game_file
 width = 12 * 32
 height = 5 * 32 + 200
 pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
@@ -41,6 +41,7 @@ grand_chelem = [
     [2, 6, 7, 9, 11, 3, 8, 4, 5, 10, 12, 1]
 ]
 niveau_grand_chelem = 0
+etape = 0 # Add global etape, will be updated on load
 
 class App:
     def __init__(self, page_affichée):
@@ -48,8 +49,7 @@ class App:
 
 class MainMenu:
     def __init__(self):
-        global musique,effets
-        
+        self.message = "Bienvenue dans Pythominos Appuyez sur Entree pour jouer ou D pour charger une partie" 
         pyxel.load("ressources.pyxres")
         if musique :
             pyxel.playm(0,loop=True)
@@ -85,6 +85,23 @@ class MainMenu:
 
         if pyxel.btnp(pyxel.KEY_RETURN):  # Lancer le jeu quand "Entrée" est pressé
             App(Choix_du_mode_et_niveaux())
+        
+        if pyxel.btnp(pyxel.KEY_D): 
+            game_data = load_game_file(filename="../saves/katamino_save.json")
+            if game_data:
+                global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, plateau, etape
+                
+                mode_grand_chelem = game_data.get("mode_grand_chelem", False)
+                niveau_grand_chelem = game_data.get("niveau_grand_chelem", 0)
+                pieces_selectionnees = game_data.get("pieces_selectionnees", [])
+                loaded_plateau_data = game_data.get("plateau", [])
+                etape = game_data.get("etape", len(pieces_selectionnees)) 
+
+                new_game_board = Plateau_de_jeu(plateau=loaded_plateau_data, loaded_from_save=True)
+                App(new_game_board)
+            else:
+                self.message = "Echec du chargement"
+
 
     def draw(self):
         """Dessine le menu principal."""
@@ -330,8 +347,7 @@ class Ecran_de_fin:
         self.piece_size = 32 
 
         self.nom_niveau = "ABCDEFGHIJKL"
-        self.message= f"Vous avez résolu le dernier niveau de votre partie en mode libre"
-
+        self.message= "Vous avez résolu le dernier niveau de votre partie en mode libre"
         if mode_grand_chelem :
             self.message = f"Vous avez résolu le dernier niveau de la série {self.nom_niveau[niveau_grand_chelem]}"
             
@@ -399,31 +415,48 @@ taille = 12
 plateau = Plateau(taille).clear 
 
 class Plateau_de_jeu:
-    def __init__(self, plateau, cell_size=32):
-        global pieces_selectionnees,musique,effets
-
-        pyxel.load("ressources.pyxres")
-
-        if musique :
-            pyxel.playm(1,loop=True)
-
-        self.Dplateau = [row[:] for row in plateau]
-        self.plateau = plateau
+    def __init__(self, plateau, cell_size=32, loaded_from_save=False):
+        global pieces_selectionnees, mode_grand_chelem, niveau_grand_chelem, etape 
         
-        self.etape = len(pieces_selectionnees)
+        if loaded_from_save:
+            self.plateau = plateau 
+            self.Dplateau = [row[:] for row in self.plateau]
+
+            self.etape = etape 
+
+            self.pieces = create_pieces(self.plateau) 
+            self.pieces_jouables = [[self.pieces[piece_idx],False,False] for piece_idx in pieces_selectionnees]
+            if not self.pieces_jouables: 
+                 self.index_piece_selectionnee = -1
+                 self.piece_selectionnee = None
+            else:
+                 self.index_piece_selectionnee = 0
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+            self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
+
+        else:
+            self.Dplateau = [row[:] for row in plateau]
+            self.plateau = plateau
+            self.etape = len(pieces_selectionnees)
+            self.pieces = create_pieces(self.plateau)
+            self.pieces_jouables = [[self.pieces[piece],False,False] for piece in pieces_selectionnees]
+            if not self.pieces_jouables:
+                 self.index_piece_selectionnee = -1
+                 self.piece_selectionnee = None
+            else:
+                 self.index_piece_selectionnee = 0
+                 self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+            self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
+
+        print(f"Plateau_de_jeu initialized. Etape: {self.etape}, Loaded: {loaded_from_save}")
 
         self.cell_size = cell_size
-        self.ligne = len(plateau)
-        self.cols = len(plateau[0]) if self.ligne > 0 else 0
+        self.ligne = len(self.plateau)
+        self.cols = len(self.plateau[0]) if self.ligne > 0 else 0
         pyxel.colors.from_list([0x000000, 0xFFFFFF, 0x7F7F7F, 0xC3C3C3, 0x64BCED, 0x200CFF, 0xFF1E27, 0x880015, 0xFFFF00, 0xF58B1A, 0x20BD0F, 0x104F12, 0xF585B1, 0xCA42D1, 0x6325D4, 0x807625])
         self.colors = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-
-
-        self.pieces = create_pieces(self.plateau)
-        self.pieces_jouables = [[self.pieces[piece],False,False] for piece in pieces_selectionnees]
-        self.index_pieces_non_jouables = [i for i in range(12) if i not in pieces_selectionnees]
-        self.index_piece_selectionnee = 0
-        self.piece_selectionnee = self.pieces_jouables[self.index_piece_selectionnee][0]
+    
+        pyxel.load("ressources.pyxres")
 
         self.liste_des_coordonnees_des_boutons = [(32*3,32*6),(32*4,32*6),(32*5,32*6),(32*6,32*6),(32*7,32*6),(32*8,32*6),(32*3,32*7),(32*4,32*7),(32*5,32*7),(32*6,32*7),(32*7,32*7),(32*8,32*7)]
         
@@ -431,6 +464,7 @@ class Plateau_de_jeu:
         self.alert_message = ""
         self.alert_timer = 0
         self.alert_duration = 50  
+        self.save_filename = "../saves/katamino_save.json"
 
     def verif_victoire(self):
         for y in range(self.ligne):
@@ -442,19 +476,21 @@ class Plateau_de_jeu:
     def update(self):
         pyxel.mouse(True)
 
-        if pyxel.btnp(pyxel.KEY_M):
-            self.menu_rapide = True
-            if pyxel.btnp(pyxel.KEY_M):
-                for piece in self.pieces_jouables :
-                    piece[1] = False
-                    piece[2] = False
-                    piece[0].retirer()
-                    piece[0].cos_de_départ()
-                global pieces_selectionnees
-                pieces_selectionnees = []
-                App(MainMenu())
-            if pyxel.btnp(pyxel.KEY_Q):
-                pyxel.quit()
+        global mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, etape 
+        if pyxel.btnp(pyxel.KEY_S):
+
+            save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, self.plateau, self.etape, self.save_filename) # Pass self.etape
+            self.alert_message = "Partie sauvegardée!"
+            self.alert_timer = self.alert_duration
+
+        if pyxel.btn(pyxel.KEY_M):
+            for piece in self.pieces_jouables :
+                piece[1] = False
+                piece[2] = False
+                piece[0].retirer()
+                piece[0].cos_de_départ()
+            pieces_selectionnees = []
+            App(MainMenu())
         
         if pyxel.btn(pyxel.KEY_C):
             for piece in self.pieces_jouables :
@@ -568,7 +604,6 @@ class Plateau_de_jeu:
 
             self.alert_message = "Victoire!"
             self.alert_timer = self.alert_duration
-            
             if self.etape == 12 :
                 App(Ecran_de_fin())
             if mode_grand_chelem : 
@@ -576,8 +611,7 @@ class Plateau_de_jeu:
             App(Ecran_de_victoire())
 
         if pyxel.btn(pyxel.KEY_G):
-
-            self.alert_message = "Victoire!"
+            self.alert_message = "Victoire!" 
             self.alert_timer = self.alert_duration
 
             if self.etape == 12 :
