@@ -46,11 +46,11 @@ Pythominoes est une implémentation en Python du jeu de puzzle Katamino. Les jou
    * **Sélectionner une pièce**: Cliquez sur l'icône de la pièce ou utilisez les touches `A` (précédente) / `E` (suivante).
    * **Déplacer la pièce active**:
      * Touches directionnelles (`Haut`/`Bas`/`Gauche`/`Droite`) ou `Z`/`S`/`Q`/`D`.
-   * **Rotation**: Touche `R` ou `Espace`.
+   * **Rotation**: Touche `R`.
    * **Symétrie**: Touche `M`.
    * **Placer la pièce**: Touche `P`.
    * **Retirer la pièce active**: Touche `W`.
-   * **Menu rapide/Pause**: Touche `G`.
+   * **Menu rapide/Pause**: Touche `Espace`.
    * **Sauvegarder la partie**: Via le menu rapide.
 6. **Objectif**: Remplir complètement la zone de jeu définie par l'étape actuelle du niveau.
 7. **Fin de partie**: Un écran de victoire s'affiche lorsque le puzzle est résolu. En mode Grand Chelem, vous progressez au niveau suivant.
@@ -86,7 +86,7 @@ Pythominoes est une implémentation en Python du jeu de puzzle Katamino. Les jou
 * [X] Système de sauvegarde et chargement de la progression.
 * [X] Conception des niveaux du Grand Chelem.
 * [ ] Système de temps (envisagé).
-* [ ] Effets sonores et musique (implémentation partielle, à finaliser).
+* [X] Effets sonores et musique (implémentation partielle, à finaliser).
 * [ ] Mode multijoueur (envisagé pour le futur).
 
 ## 👥 Contributeurs
