@@ -2,7 +2,7 @@ import pyxel
 import math
 from random import randint
 import random
-from sauvegarde import save_game_file
+#from sauvegarde import save_game_file
 width = 12 * 32
 height = 5 * 32 + 200
 pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
