@@ -1,6 +1,6 @@
 import json
 
-def save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, plateau, etape, filename="katamino_save.json"): # Added etape
+def save_game_file(mode_grand_chelem, niveau_grand_chelem, pieces_selectionnees, plateau, etape, filename="katamino_save.json"):
     game_data = {
         "mode_grand_chelem": mode_grand_chelem,
         "niveau_grand_chelem": niveau_grand_chelem,
