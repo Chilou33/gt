@@ -5,7 +5,7 @@ import random
 from sauvegarde import save_game_file
 from sauvegarde import load_game_file
 width = 12 * 32
-height = 5 * 32 + 200
+height = 10 * 32 
 pyxel.init(width,height,title="PYTHOMINOES",display_scale=2,fps=30)
 
 musique = True
@@ -266,7 +266,7 @@ class EcranChoixPieces:
         for image_piece in self.liste_pieces_deja_choisies+self.liste_piece_choisies:
             pyxel.bltm(8+decalage,6*32,0,image_piece*16,8*8,16,16,0,scale=2.0)
             decalage+=32
-        pyxel.text(3*32,32*5+180,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",0)
+        pyxel.text(3*32,32*8,"Une fois vos pieces choisies, appuyez sur Entree pour jouer",0)
 
 class Ecran_de_victoire:
     def __init__(self):
@@ -619,24 +619,29 @@ class Plateau_de_jeu:
                     num = piece[0].numero - 1
                     pyxel.bltm(self.liste_des_coordonnees_des_boutons[num][0]+8,self.liste_des_coordonnees_des_boutons[num][1]+8,0,num*16,10*8,16,16,4,scale=2.0)
             if self.alert_timer > 0:
-                message_x = 10
+                message_x = 8*32
                 message_y = self.ligne * self.cell_size + 150
                 pyxel.text(message_x, message_y, self.alert_message, 6)
             cmd_color = 0
-            hauteur_txt = 12
+
+            hauteur_txt = 10
             nbr_col = 3
-            ecart_bas = 5
-            Y_normal = pyxel.height - (nbr_col * hauteur_txt) - ecart_bas
+            
+            Y_normal = pyxel.height - (nbr_col * hauteur_txt)
+
             x_left = 20
-            pyxel.text(x_left, Y_normal, "C: Effacer le plateau", cmd_color)
+            pyxel.text(x_left, Y_normal, "P: Placer Piece", cmd_color)
             pyxel.text(x_left, Y_normal + hauteur_txt, "R: Rotation", cmd_color)
             pyxel.text(x_left, Y_normal + 2 * hauteur_txt, "E: Symetrie", cmd_color)
-            x_mid = 145
-            pyxel.text(x_mid, Y_normal, "P: Placer Piece", cmd_color)
-            pyxel.text(x_mid, Y_normal + hauteur_txt, "A: Retirer Piece", cmd_color)
+
+
+            x_mid = 145 
+            pyxel.text(x_mid, Y_normal, "A: Retirer Piece", cmd_color)
+            pyxel.text(x_mid, Y_normal + hauteur_txt, "C: Effacer le plateau", cmd_color)
             pyxel.text(x_mid, Y_normal + 2 * hauteur_txt, "N: Piece Suivante", cmd_color)
             x_right = 270
-            pyxel.text(x_right, Y_normal, "ESPACE: Menu rapide", cmd_color)
+            pyxel.text(x_right, Y_normal + hauteur_txt, "ESPACE: Menu rapide", cmd_color)
+            
 
 class Piece:
     def __init__(self, numero, patron, plateau):
