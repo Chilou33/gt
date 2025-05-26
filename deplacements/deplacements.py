@@ -98,7 +98,7 @@ class MainMenu:
                 App(Credits())
 
         else :
-            if pyxel.btnr(pyxel.KEY_RETURN):
+            if pyxel.btnp(pyxel.KEY_RETURN):
                 pyxel.play(3,38)  
                 App(Choix_du_mode_et_niveaux())
             
