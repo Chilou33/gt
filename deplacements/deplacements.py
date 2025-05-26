@@ -742,18 +742,55 @@ class Piece:
 
 def create_pieces(plateau):
     pieces = [
-        Piece(1, [[1], [1], [1], [1], [1]], plateau),
-        Piece(2, [[2, 2],[2], [2], [2]], plateau),
-        Piece(3, [[3], [3, 3], [3], [3]], plateau),
-        Piece(4,[ [4], [4, 4], [0, 4], [0, 4]], plateau),
-        Piece(5, [[5], [5], [5, 5, 5]], plateau),
-        Piece(6, [[6], [6, 6], [6, 6]], plateau),
-        Piece(7,[ [7, 7], [0, 7], [7, 7]], plateau),
-        Piece(8,[ [8, 8], [0, 8], [0, 8, 8]], plateau),
-        Piece(9, [[9],[9, 9, 9], [0, 9]], plateau),
-        Piece(10, [[10, 10, 10], [0, 10], [0, 10]], plateau),
-        Piece(11, [[11], [11, 11], [0, 11, 11]], plateau),
-        Piece(12, [[0, 12],[12, 12, 12], [0, 12]], plateau)
+        Piece(1, [ [1],
+                                 [1], 
+                                 [1], 
+                                 [1], 
+                                 [1]], plateau),
+        Piece(2, [[2, 2],
+                                [2], 
+                                [2], 
+                                [2]], plateau),
+        Piece(3, [[3], 
+                                [3, 3], 
+                                [3], 
+                                [3]], plateau),
+
+        Piece(4,[ [4],
+                                [4, 4], 
+                                [0, 4], 
+                                [0, 4]], plateau),
+
+        Piece(5, [[5], 
+                                [5], 
+                                [5, 5, 5]], plateau),
+
+        Piece(6, [[6],
+                                [6, 6], 
+                                [6, 6]], plateau),
+
+        Piece(7,[ [7, 7],
+                                [0, 7], 
+                                [7, 7]], plateau),
+
+        Piece(8,[ [8, 8],
+                                [0, 8], 
+                                [0, 8, 8]], plateau),
+
+        Piece(9, [[9],
+                                [9, 9, 9], 
+                                [0, 9]], plateau),
+        Piece(10, [[10, 10, 10],
+                                 [0, 10], 
+                                 [0, 10]], plateau),
+
+        Piece(11, [[11], 
+                                 [11, 11], 
+                                 [0, 11, 11]], plateau),
+
+        Piece(12, [[0, 12],
+                                 [12, 12, 12], 
+                                 [0, 12]], plateau)
     ]
     return pieces
  
